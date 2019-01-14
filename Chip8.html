@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <script src="Chip8.js"></script>
+    </head>
+    <body>
+        <script>
+            Processor.init();
+            console.log("PC");
+            console.log(Processor.PC);
+            Processor.execute("0x300B");
+            console.log(Processor.PC);
+        </script>
+    </body>
+</html>
