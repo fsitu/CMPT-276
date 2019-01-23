@@ -28,6 +28,13 @@ var Processor = new function()
     this.Stack = new Uint16Array(16);
     this.KeyboardBuffer = [];
 
+
+    this.display_width = 64;        //display data
+    this.display_height = 32;
+    this.display = new Array(this.display_width  * this.display_height);
+    console.log(this.display.length);
+
+
     this.delayTimer = 0;
     this.soundTimer = 0;
     this.PC = 0;
@@ -301,6 +308,31 @@ var Processor = new function()
         //console.log("DT: " + this.delayTimer);
         console.log("ST: " + this.soundTimer);
     };
+
+    this.display_test = function()          //display test
+    {
+        for(i=0; i < this.display.length; i++)               
+        {   
+            i = i+2;
+            this.display[i] = 0;
+        }
+    }
+    console.log("test completed");
+
+    this.get_display_width = function()  //get display methods
+    {
+        return this.display_width;
+    }
+
+    this.get_display_height = function()
+    {
+        return this.display_height;
+    }
+
+    this.get_display = function()
+    {
+        return this.display;
+    }
 
     this.main = function()
     {
