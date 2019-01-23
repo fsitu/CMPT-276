@@ -14,23 +14,41 @@ var Processor = new function()
 
     this.Registers = new Uint8Array(16);
     this.Stack = new Uint16Array(16);
-
     this.PC = 0;
+
+    this.display_width = 64;        //display data
+    this.display_height = 32;
+    this.display = new Array(this.display_width  * this.display_height);
+    console.log(this.display.length);
+
+    this.display_test = function()          //display test
+    {
+        for(i=0; i < this.display.length; i++)               
+        {   
+            i = i+2;
+            this.display[i] = 0;
+        }
+    }
+    console.log("test completed");
 
     this.init = function()
     {
         console.log("Hello World!");
-        for (var i = 0; i <= 9; i++)
+
+        for ( i = 0; i <= 9; i++)
         {
             console.log(this.Memory[i]);
         }
         this.Registers[0] = 10;
-    };
+        
+
+
+    }
 
     this.fetch = function() // Fetches from the program stored in the memory
     {
 
-    };
+    }
 
     this.execute = function(opcode) // Finds ("reads") and executes
     {
@@ -49,5 +67,20 @@ var Processor = new function()
                 }
             }
         }
+    }
+
+    this.get_display_width = function()
+    {
+        return this.display_width;
+    }
+    
+    this.get_display_height = function()
+    {
+        return this.display_height;
+    }
+
+    this.get_display = function()
+    {
+        return this.display;
     }
 }

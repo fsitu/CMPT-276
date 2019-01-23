@@ -3,14 +3,27 @@
     <head>
         <meta charset="utf-8">
         <script src="Chip8.js"></script>
+        <script src="Graphics.js"></script>
     </head>
     <body>
+        <div id="display">
+            <canvas id="my_canvas" width="640" height="320">
+
+            </canvas>
+        </div>
         <script>
+            var display_width = Processor.get_display_width();
+            var display_height = Processor.get_display_height();
+            var display = Processor.get_display();
+            var graphics = new graphics_render(document.getElementById('my_canvas'), display_width, display_height);
             Processor.init();
             console.log("PC");
             console.log(Processor.PC);
             Processor.execute("0x300B");
             console.log(Processor.PC);
+            Processor.display_test();
+            graphics.render(display);
+
         </script>
     </body>
 </html>
