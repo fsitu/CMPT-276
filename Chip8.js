@@ -38,8 +38,11 @@ var Processor = new function()
     this.delayTimer = 0;
     this.soundTimer = 0;
     this.PC = 0;
+    this.I=  15; //index register
 
     this.pause = false;
+
+
 
     this.init = function() // Resets values/variables
     {
@@ -47,6 +50,16 @@ var Processor = new function()
 
         this.Registers[0] = 10;
         this.Registers[1] = 6;
+
+
+        //load fontset onto memory
+        for(i=0; i<fontset.length; i++)
+        {
+            this.Memory[i] = fontset[i];
+        }
+        for (i = 0; i < this.display.length; i++) {
+            this.display[i] = 0;
+         }
     };
 
     this.fetch = function() // Fetches from the program stored in the memory
@@ -306,18 +319,45 @@ var Processor = new function()
 
         }
         //console.log("DT: " + this.delayTimer);
-        console.log("ST: " + this.soundTimer);
+        // console.log("ST: " + this.soundTimer);
     };
 
-    this.display_test = function()          //display test
+    this.display_test = function(test_opcode)          //display test
     {
-        for(i=0; i < this.display.length; i++)               
-        {   
-            i = i+2;
-            this.display[i] = 0;
+        var x_position = (test_opcode & 0x0F00) >> 8;
+        var y_position = (test_opcode & 0x00F0) >> 4;
+        var N = test_opcode & 0X000F;
+        this.Registers[0xF] = 0;
+        for ( display_y = 0; display_y < N; display_y++)
+        {
+            var line = this.Memory[this.I + display_y];
+            for( display_x = 0; display_x < 8; display_x++)
+            {
+                var pixel = line & (0x80 >> display_x);
+
+                if(pixel != 0) {
+
+                    var x_total = x_position + display_x;
+                    var y_total = y_position + display_y;
+                    var index = y_total * 64 + x_total;
+                    if(this.display[index] == 1)
+                    {
+                        this.Registers = 1;
+
+                    }
+                    this.display[index] ^= 1;
+                }
+            }
         }
+ 
+        this.PC += 2;
+
+        
+        console.log("test completed");
+
     }
-    console.log("test completed");
+
+
 
     this.get_display_width = function()  //get display methods
     {
@@ -333,6 +373,7 @@ var Processor = new function()
     {
         return this.display;
     }
+
 
     this.main = function()
     {

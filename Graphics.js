@@ -21,6 +21,11 @@ var graphics_render = function(canvas, width, height)
         
     }
 
+    this.clear_display = function ()
+    {
+        this.canvas.fillRect(0, 0, this.width*10, this.height*10);
+    }
+
     this.render = function(display)
     {
 
@@ -28,11 +33,11 @@ var graphics_render = function(canvas, width, height)
         {
             if(display[i] == 0)
             {
-                this.canvas.fillStyle = "white";
+                this.canvas.fillStyle = "black ";
             }
             else
             {
-                this.canvas.fillStyle = "black";
+                this.canvas.fillStyle = "white";
             }
              x = (i % this.width);
              y = Math.floor(i / this.width);

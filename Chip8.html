@@ -4,6 +4,8 @@
         <meta charset="utf-8">
         <script src="Chip8.js"></script>
         <script src="Graphics.js"></script>
+        <script src="Fontset.js"></script>
+
     </head>
     <body>
         <div id="display">
@@ -22,8 +24,11 @@
             Processor.execute("0xF015");
             Processor.execute("0xF118");
             Processor.main();
-            Processor.display_test();
+            graphics.clear_display();
+            Processor.display_test("0xD655");
             graphics.render(display);
+            
+            
             setTimeout(function()
             {
                 Processor.execute("0xFA07")
