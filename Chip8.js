@@ -23,6 +23,8 @@ var Processor = new function()
     this.Memory[57] = ("0x0015" & "0x00FF");
     this.Memory[58] = ("0xF000" & "0xF000") >>> 8; // SetSoundTimer
     this.Memory[59] = ("0x0018" & "0x00FF");
+    this.Memory[60] = ("0xF000" & "0xF000") >>> 8; // AddStoreIVx
+    this.Memory[61] = ("0x001E" & "0x00FF");
 
     this.Registers = new Uint8Array(16);
     this.Stack = new Uint16Array(16);
@@ -40,16 +42,19 @@ var Processor = new function()
     this.PC = 0;
     this.I=  15; //index register
 
+	this.opcodeDone = false; // Tracks whether the current opcode is done executing
     this.pause = false;
 
 
 
     this.init = function() // Resets values/variables
     {
-        console.log(this.Memory[51]);
+        console.log(this.Memory[60]);
+        console.log(this.Memory[61]);
 
         this.Registers[0] = 10;
         this.Registers[1] = 6;
+        this.Registers[15] = 6;
 
 
         //load fontset onto memory
@@ -64,6 +69,8 @@ var Processor = new function()
 
     this.fetch = function() // Fetches from the program stored in the memory
     {
+    	this.opcodeDone = false;
+        console.log("Fetch!");
     };
 
     this.execute = function(opcode) // Finds ("reads") and executes
@@ -166,7 +173,12 @@ var Processor = new function()
                                 this.PC += 2;
                                 console.log("This works!");
                             }
+                            break;
                         }
+                    }
+                    else
+                    {
+                    	continue;
                     }
                 }
 
@@ -276,6 +288,9 @@ var Processor = new function()
                                 if (valid) // A valid key is pressed.
                                 {
                                     _this.pause = false;
+                                    _this.Registers[((opcode & "0x0F00") >>> 8)] = hex;
+                                    console.log(_this.Registers[((opcode & "0x0F00") >>> 8)]);
+
                                     if (_this.KeyboardBuffer.length == 0)
                                     {
                                         _this.KeyboardBuffer.push(key.keyCode);
@@ -283,6 +298,7 @@ var Processor = new function()
                                     document.onkeydown = null;
                                 }
                             };
+                            break;
                         }
                         else if (i == 56) //SetDelayTimer_VxTODT
                         {
@@ -294,6 +310,13 @@ var Processor = new function()
                             this.soundTimer = this.Registers[((opcode & "0x0F00") >>> 8)];
                             break;
                         }
+                        else if(i == 60)
+                        {
+                        	var Vx = this.Registers[((opcode & "0x0F00") >>> 8)];
+                            var VF = this.Registers[15];
+                            this.Registers[15] = VF + Vx;
+                            console.log("VF: " + this.Registers[15]);
+                        }
                     }
                     else
                     {
@@ -302,6 +325,7 @@ var Processor = new function()
                 }
             }
         }
+        this.opcodeDone = true;
     }
 
     this.TickTimers = function() // The timers will decrease by one at a rate of 60Hz.
@@ -402,11 +426,20 @@ var Processor = new function()
                     if (_this.KeyboardBuffer[0] == event.keyCode)
                     {
                         _this.KeyboardBuffer.shift();
-                        console.log("Removed a key from the array!");
+                        if(!_this.pause)
+                        {
+                        	console.log("Removed a key from the array!");
+                        }
+                        // console.log("Removed a key from the array!");
                     }
                 }
                 window.onkeyup = null;
             };
+
+           	if (!_this.pause && _this.opcodeDone)
+            {
+                _this.fetch();
+            }
 
             /*document.addEventListener("keydown", function(event)
             {
