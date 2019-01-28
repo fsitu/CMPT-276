@@ -25,10 +25,19 @@ var Processor = new function()
     this.Memory[57] = ("0x0015" & "0x00FF");
     this.Memory[58] = ("0xF000" & "0xF000") >>> 8; // SetSoundTimer
     this.Memory[59] = ("0x0018" & "0x00FF");
-    this.Memory[60] = ("0xF000" & "0xF000") >>> 8; // AddStoreIVx
+    this.Memory[60] = ("0xF000" & "0xF000") >>> 8; // AddVxIStore
     this.Memory[61] = ("0x001E" & "0x00FF");
+    this.Memory[62] = ("0xF000" & "0xF000") >>> 8; // SetSpriteLocation
+    this.Memory[63] = ("0x0029" & "0x00FF");
+    this.Memory[64] = ("0xF000" & "0xF000") >>> 8; // StoreIBCDRepVx
+    this.Memory[65] = ("0x0033" & "0x00FF");
+    this.Memory[66] = ("0xF000" & "0xF000") >>> 8; // StoreV0VxtoMemory
+    this.Memory[67] = ("0x0055" & "0x00FF");
+    this.Memory[68] = ("0xF000" & "0xF000") >>> 8; // ReadMemoryWriteV0Vx
+    this.Memory[69] = ("0x0065" & "0x00FF");
 
     this.Registers = new Uint8Array(16);
+    this.ISpecial; // A special register used to store a memory address
     this.Stack = new Uint16Array(16);
     this.KeyboardBuffer = [];
 
@@ -39,8 +48,8 @@ var Processor = new function()
 
     this.delayTimer = 0;
     this.soundTimer = 0;
-    this.PC = 0;
-    this.I=  15; // Index register
+    this.PC = 0; // Program counter
+    this.I = 15; // Index register (WHAT IS THIS FOR?)
 
 	this.opcodeDone = false; // Tracks whether the current opcode is done executing
     this.pause = false;
@@ -52,7 +61,7 @@ var Processor = new function()
 
         this.Registers[0] = 10;
         this.Registers[1] = 6;
-        this.Registers[15] = 6;
+        this.ISpecial = 5;
 
         // Loads the fontset into the memory
         for(i = 0; i < fontset.length; i++)
@@ -166,12 +175,87 @@ var Processor = new function()
                             if (this.KeyboardBuffer[0] == key)
                             {
                                 this.PC += 2;
-                                console.log("This works!");
+                                console.log("This KeyDown stuff works!");
                             }
                             break;
                         }
                         else if (i == 50) // SkipNextInstruction_KeyUp
                         {
+                            var hexCode = this.Registers[(opcode & "0x0F00") >>> 8];
+                            var convertHex = function(code) // Converts a hexadecimal into a keyboard input
+                            {
+                                if (code == 0)
+                                {
+                                    return 49;
+                                }
+                                else if (code == 1)
+                                {
+                                    return 50;
+                                }
+                                else if (code == 2)
+                                {
+                                    return 51;
+                                }
+                                else if (code == 3)
+                                {
+                                    return 52;
+                                }
+                                else if (code == 4)
+                                {
+                                    return 81;
+                                }
+                                else if (code == 5)
+                                {
+                                    return 87;
+                                }
+                                else if (code == 6)
+                                {
+                                    return 69;
+                                }
+                                else if (code == 7)
+                                {
+                                    return 82;
+                                }
+                                else if (code == 8)
+                                {
+                                    return 65;
+                                }
+                                else if (code == 9)
+                                {
+                                    return 83;
+                                }
+                                else if (code == 10)
+                                {
+                                    return 68;
+                                }
+                                else if (code == 11)
+                                {
+                                    return 70;
+                                }
+                                else if (code == 12)
+                                {
+                                    return 90;
+                                }
+                                else if (code == 13)
+                                {
+                                    return 88;
+                                }
+                                else if (code == 14)
+                                {
+                                    return 67;
+                                }
+                                else if (code == 15)
+                                {
+                                    return 86;
+                                }
+                            };
+
+                            var key = convertHex(hexCode);
+                            if (this.KeyboardBuffer[0] != key)
+                            {
+                                this.PC += 2;
+                                console.log("This KeyUp stuff works!");
+                            }
                             break;
                         }
                     }
@@ -326,12 +410,12 @@ var Processor = new function()
                             this.soundTimer = this.Registers[((opcode & "0x0F00") >>> 8)];
                             break;
                         }
-                        else if(i == 60)
+                        else if(i == 60) // AddVxIStore
                         {
                         	var Vx = this.Registers[((opcode & "0x0F00") >>> 8)];
-                            var VF = this.Registers[15];
-                            this.Registers[15] = VF + Vx;
-                            console.log("VF: " + this.Registers[15]);
+                            var VI = this.ISpecial;
+                            this.ISpecial = VI + Vx;
+                            console.log("Register I: " + this.ISpecial);
                         }
                     }
                     else
@@ -389,7 +473,7 @@ var Processor = new function()
         }
  
         this.PC += 2; // WHY INCREASE PC?
-        console.log("Test completed!");
+        console.log("Display test completed!");
     }
 
     this.get_display_width = function() // Get display methods
