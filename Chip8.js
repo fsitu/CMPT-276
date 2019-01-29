@@ -380,7 +380,7 @@ var Processor = new function()
                                     if(key.keyCode == key_code[i])
                                     {
                                         valid = true;
-                                        hex = 0;
+                                        hex = i;
                                         console.log(keys[i] + "is pressed!")
                                     }
                                     else
