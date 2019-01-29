@@ -105,11 +105,30 @@ var Processor = new function()
                             var hexCode = this.Registers[(opcode & "0x0F00") >>> 8];
                             var convertHex = function(code) // Converts a hexadecimal into a keyboard input
                             {
+                                var key_code =
+                                [
+                                    49,
+                                    50,
+                                    51,
+                                    52,
+                                    81,
+                                    87,
+                                    69,
+                                    82,
+                                    65,
+                                    83,
+                                    68,
+                                    70,
+                                    90,
+                                    88,
+                                    67,
+                                    86
+                                ];
                                 for(i = 0; i <16; i++)//start
                                 {
                                     if(code == i)
                                     {
-                                        return(49 + i);
+                                        return(key_code[i]);
                                     }
                                 }//end
                                 // if (code == 0)
@@ -191,11 +210,30 @@ var Processor = new function()
                             var hexCode = this.Registers[(opcode & "0x0F00") >>> 8];
                             var convertHex = function(code) // Converts a hexadecimal into a keyboard input
                             {
+                                var key_code =
+                                [
+                                    49,
+                                    50,
+                                    51,
+                                    52,
+                                    81,
+                                    87,
+                                    69,
+                                    82,
+                                    65,
+                                    83,
+                                    68,
+                                    70,
+                                    90,
+                                    88,
+                                    67,
+                                    86
+                                ];
                                 for(i = 0; i <16; i++) //start
                                 {
                                     if(code == i)
                                     {
-                                        return(49 + i);
+                                        return(key_code[i]);
                                     }
                                 }//end
                                 // if (code == 0)
@@ -318,7 +356,7 @@ var Processor = new function()
                                         "X",
                                         "C",
                                         "V"
-                                    ] 
+                                    ];
 
                                     var key_code =
                                     [
@@ -334,10 +372,11 @@ var Processor = new function()
                                         83,
                                         68,
                                         70,
+                                        90,
                                         88,
                                         67,
                                         86
-                                    ]
+                                    ];
                                     if(key.keyCode == key_code[i])
                                     {
                                         valid = true;
