@@ -8,11 +8,13 @@
 
     </head>
     <body>
-        <div id="display">
-            <canvas id="my_canvas" width="640" height="320">
+        <div id="display" align="center">
+            <h1>Chip 8 Emulator</h1>
+            <canvas id="my_canvas" width="640" height="320" >
             </canvas>
         </div>
         <script>
+ 
             var display_width = Processor.get_display_width(); // I THINK GET METHODS ARE NOT NECESSARY
             var display_height = Processor.get_display_height();
             var display = Processor.get_display();
@@ -46,6 +48,8 @@
                 console.log("PC: " + Processor.PC);
                 console.log("Registers: " + Processor.Registers); // SkipNextInstruction_KeyDown
             }, 3000);
+
+
         </script>
     </body>
 </html>
