@@ -37,7 +37,7 @@ var Processor = new function()
     this.Memory[69] = ("0x0065" & "0x00FF");
 
     this.Registers = new Uint8Array(16);
-    this.ISpecial; // A special register used to store a memory address
+    this.ISpecial; // Index register (a special register used to store a memory address)
     this.Stack = new Uint16Array(16);
     this.KeyboardBuffer = [];
 
@@ -49,24 +49,23 @@ var Processor = new function()
     this.delayTimer = 0;
     this.soundTimer = 0;
     this.PC = 0; // Program counter
-    this.I = 15; // Index register (WHAT IS THIS FOR?)
 
 	this.opcodeDone = false; // Tracks whether the current opcode is done executing
     this.pause = false;
 
-    this.init = function() // Resets values/variables
+    this.init = function() // Resets variables
     {
         console.log("Memory[48]: " + this.Memory[48]);
         console.log("Memory[49]: " + this.Memory[49]);
 
         this.Registers[0] = 10;
         this.Registers[1] = 6;
-        this.ISpecial = 5;
+        this.ISpecial = 2;
 
         // Loads the fontset into the memory
         for(i = 0; i < fontset.length; i++)
         {
-            this.Memory[70 + i] = fontset[i]; // I FIXED THIS.
+            this.Memory[70 + i] = fontset[i];
         }
         for (i = 0; i < this.display.length; i++)
         {
@@ -107,94 +106,17 @@ var Processor = new function()
                             {
                                 var key_code =
                                 [
-                                    49,
-                                    50,
-                                    51,
-                                    52,
-                                    81,
-                                    87,
-                                    69,
-                                    82,
-                                    65,
-                                    83,
-                                    68,
-                                    70,
-                                    90,
-                                    88,
-                                    67,
-                                    86
+                                    49, 50, 51, 52, 81, 87,
+                                    69, 82, 65, 83, 68, 70,
+                                    90, 88, 67, 86
                                 ];
-                                for(i = 0; i <16; i++)//start
+                                for(i = 0; i < 16; i++)
                                 {
                                     if(code == i)
                                     {
                                         return(key_code[i]);
                                     }
-                                }//end
-                                // if (code == 0)
-                                // {
-                                //     return 49;
-                                // }
-                                // else if (code == 1)
-                                // {
-                                //     return 50;
-                                // }
-                                // else if (code == 2)
-                                // {
-                                //     return 51;
-                                // }
-                                // else if (code == 3)
-                                // {
-                                //     return 52;
-                                // }
-                                // else if (code == 4)
-                                // {
-                                //     return 81;
-                                // }
-                                // else if (code == 5)
-                                // {
-                                //     return 87;
-                                // }
-                                // else if (code == 6)
-                                // {
-                                //     return 69;
-                                // }
-                                // else if (code == 7)
-                                // {
-                                //     return 82;
-                                // }
-                                // else if (code == 8)
-                                // {
-                                //     return 65;
-                                // }
-                                // else if (code == 9)
-                                // {
-                                //     return 83;
-                                // }
-                                // else if (code == 10)
-                                // {
-                                //     return 68;
-                                // }
-                                // else if (code == 11)
-                                // {
-                                //     return 70;
-                                // }
-                                // else if (code == 12)
-                                // {
-                                //     return 90;
-                                // }
-                                // else if (code == 13)
-                                // {
-                                //     return 88;
-                                // }
-                                // else if (code == 14)
-                                // {
-                                //     return 67;
-                                // }
-                                // else if (code == 15)
-                                // {
-                                //     return 86;
-                                // }
+                                }
                             };
 
                             var key = convertHex(hexCode);
@@ -212,94 +134,17 @@ var Processor = new function()
                             {
                                 var key_code =
                                 [
-                                    49,
-                                    50,
-                                    51,
-                                    52,
-                                    81,
-                                    87,
-                                    69,
-                                    82,
-                                    65,
-                                    83,
-                                    68,
-                                    70,
-                                    90,
-                                    88,
-                                    67,
-                                    86
+                                    49, 50, 51, 52, 81, 87,
+                                    69, 82, 65, 83, 68, 70,
+                                    90, 88, 67, 86
                                 ];
-                                for(i = 0; i <16; i++) //start
+                                for(i = 0; i < 16; i++)
                                 {
                                     if(code == i)
                                     {
                                         return(key_code[i]);
                                     }
-                                }//end
-                                // if (code == 0)
-                                // {
-                                //     return 49;
-                                // }
-                                // else if (code == 1)
-                                // {
-                                //     return 50;
-                                // }
-                                // else if (code == 2)
-                                // {
-                                //     return 51;
-                                // }
-                                // else if (code == 3)
-                                // {
-                                //     return 52;
-                                // }
-                                // else if (code == 4)
-                                // {
-                                //     return 81;
-                                // }
-                                // else if (code == 5)
-                                // {
-                                //     return 87;
-                                // }
-                                // else if (code == 6)
-                                // {
-                                //     return 69;
-                                // }
-                                // else if (code == 7)
-                                // {
-                                //     return 82;
-                                // }
-                                // else if (code == 8)
-                                // {
-                                //     return 65;
-                                // }
-                                // else if (code == 9)
-                                // {
-                                //     return 83;
-                                // }
-                                // else if (code == 10)
-                                // {
-                                //     return 68;
-                                // }
-                                // else if (code == 11)
-                                // {
-                                //     return 70;
-                                // }
-                                // else if (code == 12)
-                                // {
-                                //     return 90;
-                                // }
-                                // else if (code == 13)
-                                // {
-                                //     return 88;
-                                // }
-                                // else if (code == 14)
-                                // {
-                                //     return 67;
-                                // }
-                                // else if (code == 15)
-                                // {
-                                //     return 86;
-                                // }
+                                }
                             };
 
                             var key = convertHex(hexCode);
@@ -333,168 +178,143 @@ var Processor = new function()
 
                             var valid = true; // Checks for valid keys
                             var _this = this;
+                            // Leave the below function for now. I'm not sure why the for loop doesn't work.
                             document.onkeydown = function(key) // Is this necessary?
                             {
                                 var hex;
-                                for(i=0; i<16; i++) //start
+                                for(i = 0; i < 16; i++)
                                 {
                                     var keys =
                                     [
-                                        1,              
-                                        2,
-                                        3,
-                                        4,
-                                        "Q",
-                                        "W",
-                                        "E",
-                                        "R",
-                                        "A",
-                                        "S",
-                                        "D",
-                                        "F",
-                                        "Z",
-                                        "X",
-                                        "C",
-                                        "V"
+                                        1, 2, 3, 4,
+                                        "Q", "W", "E", "R",
+                                        "A", "S", "D", "F",
+                                        "Z", "X", "C", "V"
                                     ];
-
                                     var key_code =
                                     [
-                                        49,
-                                        50,
-                                        51,
-                                        52,
-                                        81,
-                                        87,
-                                        69,
-                                        82,
-                                        65,
-                                        83,
-                                        68,
-                                        70,
-                                        90,
-                                        88,
-                                        67,
-                                        86
+                                        49, 50, 51, 52,
+                                        81, 87, 69, 82,
+                                        65, 83, 68, 70,
+                                        90, 88, 67, 86
                                     ];
                                     if(key.keyCode == key_code[i])
                                     {
                                         valid = true;
                                         hex = i;
-                                        console.log(keys[i] + "is pressed!")
+                                        console.log(keys[i] + " is pressed!")
+                                        break;
                                     }
                                     else
                                     {
-                                        valid = false; // A invalid key is pressed.
+                                        valid = false; // An invalid key is pressed.
                                     }
-                                } //end 
-                                    // if (key.keyCode == 49)
-                                    // {
-                                    //     valid = true;
-                                    //     hex = 0;
-                                    //     console.log("1 is pressed!");
-                                    // }
-                                    // else if (key.keyCode == 50)
-                                    // {
-                                    //     valid = true;
-                                    //     hex = 1;
-                                    //     console.log("2 is pressed!");
-                                    // }
-                                    // else if (key.keyCode == 51)
-                                    // {
-                                    //     valid = true;
-                                    //     hex = 2;
-                                    //     console.log("3 is pressed!");
-                                    // }
-                                    // else if (key.keyCode == 52)
-                                    // {
-                                    //     valid = true;
-                                    //     hex = 3;
-                                    //     console.log("4 is pressed!");
-                                    // }
-                                    // else if (key.keyCode == 81)
-                                    // {
-                                    //     valid = true;
-                                    //     hex = 4;
-                                    //     console.log("Q is pressed!");
-                                    // }
-                                    // else if (key.keyCode == 87)
-                                    // {
-                                    //     valid = true;
-                                    //     hex = 5;
-                                    //     console.log("W is pressed!");
-                                    // }
-                                    // else if (key.keyCode == 69)
-                                    // {
-                                    //     valid = true;
-                                    //     hex = 6;
-                                    //     console.log("E is pressed!");
-                                    // }
-                                    // else if (key.keyCode == 82)
-                                    // {
-                                    //     valid = true;
-                                    //     hex = 7;
-                                    //     console.log("R is pressed!");
-                                    // }
-                                    // else if (key.keyCode == 65)
-                                    // {
-                                    //     valid = true;
-                                    //     hex = 8;
-                                    //     console.log("A is pressed!");
-                                    // }
-                                    // else if (key.keyCode == 83)
-                                    // {
-                                    //     valid = true;
-                                    //     hex = 9;
-                                    //     console.log("S is pressed!");
-                                    // }
-                                    // else if (key.keyCode == 68)
-                                    // {
-                                    //     valid = true;
-                                    //     hex = 10;
-                                    //     console.log("D is pressed!");
-                                    // }
-                                    // else if (key.keyCode == 70)
-                                    // {
-                                    //     valid = true;
-                                    //     hex = 11;
-                                    //     console.log("F is pressed!");
-                                    // }
-                                    // else if (key.keyCode == 90)
-                                    // {
-                                    //     valid = true;
-                                    //     hex = 12;
-                                    //     console.log("Z is pressed!");
-                                    // }
-                                    // else if (key.keyCode == 88)
-                                    // {
-                                    //     valid = true;
-                                    //     hex = 13;
-                                    //     console.log("X is pressed!");
-                                    // }
-                                    // else if (key.keyCode == 67)
-                                    // {
-                                    //     valid = true;
-                                    //     hex = 14;
-                                    //     console.log("C is pressed!");
-                                    // }
-                                    // else if (key.keyCode == 86)
-                                    // {
-                                    //     valid = true;
-                                    //     hex = 15;
-                                    //     console.log("V is pressed!");
-                                    // }
-                                    // else
-                                    // {
-                                    //     valid = false; // A invalid key is pressed.
-                                    // }
+                                }
+                                /*if (key.keyCode == 49)
+                                {
+                                    valid = true;
+                                    hex = 0;
+                                    console.log("1 is pressed!");
+                                }
+                                else if (key.keyCode == 50)
+                                {
+                                    valid = true;
+                                    hex = 1;
+                                    console.log("2 is pressed!");
+                                }
+                                else if (key.keyCode == 51)
+                                {
+                                    valid = true;
+                                    hex = 2;
+                                    console.log("3 is pressed!");
+                                }
+                                else if (key.keyCode == 52)
+                                {
+                                    valid = true;
+                                    hex = 3;
+                                    console.log("4 is pressed!");
+                                }
+                                else if (key.keyCode == 81)
+                                {
+                                    valid = true;
+                                    hex = 4;
+                                    console.log("Q is pressed!");
+                                }
+                                else if (key.keyCode == 87)
+                                {
+                                    valid = true;
+                                    hex = 5;
+                                    console.log("W is pressed!");
+                                }
+                                else if (key.keyCode == 69)
+                                {
+                                    valid = true;
+                                    hex = 6;
+                                    console.log("E is pressed!");
+                                }
+                                else if (key.keyCode == 82)
+                                {
+                                    valid = true;
+                                    hex = 7;
+                                    console.log("R is pressed!");
+                                }
+                                else if (key.keyCode == 65)
+                                {
+                                    valid = true;
+                                    hex = 8;
+                                    console.log("A is pressed!");
+                                }
+                                else if (key.keyCode == 83)
+                                {
+                                    valid = true;
+                                    hex = 9;
+                                    console.log("S is pressed!");
+                                }
+                                else if (key.keyCode == 68)
+                                {
+                                    valid = true;
+                                    hex = 10;
+                                    console.log("D is pressed!");
+                                }
+                                else if (key.keyCode == 70)
+                                {
+                                    valid = true;
+                                    hex = 11;
+                                    console.log("F is pressed!");
+                                }
+                                else if (key.keyCode == 90)
+                                {
+                                    valid = true;
+                                    hex = 12;
+                                    console.log("Z is pressed!");
+                                }
+                                else if (key.keyCode == 88)
+                                {
+                                    valid = true;
+                                    hex = 13;
+                                    console.log("X is pressed!");
+                                }
+                                else if (key.keyCode == 67)
+                                {
+                                    valid = true;
+                                    hex = 14;
+                                    console.log("C is pressed!");
+                                }
+                                else if (key.keyCode == 86)
+                                {
+                                    valid = true;
+                                    hex = 15;
+                                    console.log("V is pressed!");
+                                }
+                                else
+                                {
+                                    valid = false; // An invalid key is pressed.
+                                }*/
 
                                 if (valid) // A valid key is pressed.
                                 {
                                     _this.pause = false;
                                     _this.Registers[((opcode & "0x0F00") >>> 8)] = hex;
-                                    console.log(_this.Registers[((opcode & "0x0F00") >>> 8)]);
-
                                     if (_this.KeyboardBuffer.length == 0)
                                     {
                                         _this.KeyboardBuffer.push(key.keyCode);
@@ -554,11 +374,11 @@ var Processor = new function()
         var x_position = (test_opcode & 0x0F00) >> 8;
         var y_position = (test_opcode & 0x00F0) >> 4;
         var N = (test_opcode & 0x000F);
-        this.Registers[0xF] = 0; // WHY REGISTER[15]? AND MAYBE JUST USE NORMAL NUMBERS
+        this.Registers[0xF] = 0; // MAYBE JUST USE NORMAL NUMBERS
 
-        for (display_y = 0; display_y < N; display_y++) // I FIXED THIS.
+        for (display_y = 0; display_y < N; display_y++)
         {
-            var line = this.Memory[70 + this.I + display_y];
+            var line = this.Memory[70 + this.ISpecial + display_y]; // Just reads the special I register
             for(display_x = 0; display_x < 8; display_x++)
             {
                 var pixel = line & (0x80 >> display_x);
@@ -569,7 +389,7 @@ var Processor = new function()
                     var index = y_total * 64 + x_total;
                     if(this.display[index] == 1)
                     {
-                        this.Registers[0XF] = 1; // ERROR MAYBE?
+                        this.Registers[0xF] = 1;
                     }
                     this.display[index] ^= 1;
                 }
