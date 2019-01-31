@@ -29,7 +29,7 @@ var Processor = new function()
     this.Memory[61] = ("0x001E" & "0x00FF");
     this.Memory[62] = ("0xF000" & "0xF000") >>> 8; // SetSpriteLocation
     this.Memory[63] = ("0x0029" & "0x00FF");
-    this.Memory[64] = ("0xF000" & "0xF000") >>> 8; // StoreIBCDRepVx
+    this.Memory[64] = ("0xF000" & "0xF000") >>> 8; // StoreBCDRepVx
     this.Memory[65] = ("0x0033" & "0x00FF");
     this.Memory[66] = ("0xF000" & "0xF000") >>> 8; // StoreV0VxtoMemory
     this.Memory[67] = ("0x0055" & "0x00FF");
@@ -55,12 +55,9 @@ var Processor = new function()
 
     this.init = function() // Resets variables
     {
-        console.log("Memory[48]: " + this.Memory[48]);
-        console.log("Memory[49]: " + this.Memory[49]);
-
-        this.Registers[0] = 10;
+        this.Registers[0] = 180;
         this.Registers[1] = 6;
-        this.ISpecial = 2;
+        this.ISpecial = 520;
 
         // Loads the fontset into the memory
         for(i = 0; i < fontset.length; i++)
@@ -178,26 +175,19 @@ var Processor = new function()
 
                             var valid = true; // Checks for valid keys
                             var _this = this;
-                            // Leave the below function for now. I'm not sure why the for loop doesn't work.
                             document.onkeydown = function(key) // Is this necessary?
                             {
                                 var hex;
                                 for(i = 0; i < 16; i++)
                                 {
-                                    var keys =
-                                    [
-                                        1, 2, 3, 4,
+                                    var keys = [1, 2, 3, 4,
                                         "Q", "W", "E", "R",
                                         "A", "S", "D", "F",
-                                        "Z", "X", "C", "V"
-                                    ];
-                                    var key_code =
-                                    [
-                                        49, 50, 51, 52,
+                                        "Z", "X", "C", "V"];
+                                    var key_code = [49, 50, 51, 52,
                                         81, 87, 69, 82,
                                         65, 83, 68, 70,
-                                        90, 88, 67, 86
-                                    ];
+                                        90, 88, 67, 86];
                                     if(key.keyCode == key_code[i])
                                     {
                                         valid = true;
@@ -210,106 +200,6 @@ var Processor = new function()
                                         valid = false; // An invalid key is pressed.
                                     }
                                 }
-                                /*if (key.keyCode == 49)
-                                {
-                                    valid = true;
-                                    hex = 0;
-                                    console.log("1 is pressed!");
-                                }
-                                else if (key.keyCode == 50)
-                                {
-                                    valid = true;
-                                    hex = 1;
-                                    console.log("2 is pressed!");
-                                }
-                                else if (key.keyCode == 51)
-                                {
-                                    valid = true;
-                                    hex = 2;
-                                    console.log("3 is pressed!");
-                                }
-                                else if (key.keyCode == 52)
-                                {
-                                    valid = true;
-                                    hex = 3;
-                                    console.log("4 is pressed!");
-                                }
-                                else if (key.keyCode == 81)
-                                {
-                                    valid = true;
-                                    hex = 4;
-                                    console.log("Q is pressed!");
-                                }
-                                else if (key.keyCode == 87)
-                                {
-                                    valid = true;
-                                    hex = 5;
-                                    console.log("W is pressed!");
-                                }
-                                else if (key.keyCode == 69)
-                                {
-                                    valid = true;
-                                    hex = 6;
-                                    console.log("E is pressed!");
-                                }
-                                else if (key.keyCode == 82)
-                                {
-                                    valid = true;
-                                    hex = 7;
-                                    console.log("R is pressed!");
-                                }
-                                else if (key.keyCode == 65)
-                                {
-                                    valid = true;
-                                    hex = 8;
-                                    console.log("A is pressed!");
-                                }
-                                else if (key.keyCode == 83)
-                                {
-                                    valid = true;
-                                    hex = 9;
-                                    console.log("S is pressed!");
-                                }
-                                else if (key.keyCode == 68)
-                                {
-                                    valid = true;
-                                    hex = 10;
-                                    console.log("D is pressed!");
-                                }
-                                else if (key.keyCode == 70)
-                                {
-                                    valid = true;
-                                    hex = 11;
-                                    console.log("F is pressed!");
-                                }
-                                else if (key.keyCode == 90)
-                                {
-                                    valid = true;
-                                    hex = 12;
-                                    console.log("Z is pressed!");
-                                }
-                                else if (key.keyCode == 88)
-                                {
-                                    valid = true;
-                                    hex = 13;
-                                    console.log("X is pressed!");
-                                }
-                                else if (key.keyCode == 67)
-                                {
-                                    valid = true;
-                                    hex = 14;
-                                    console.log("C is pressed!");
-                                }
-                                else if (key.keyCode == 86)
-                                {
-                                    valid = true;
-                                    hex = 15;
-                                    console.log("V is pressed!");
-                                }
-                                else
-                                {
-                                    valid = false; // An invalid key is pressed.
-                                }*/
 
                                 if (valid) // A valid key is pressed.
                                 {
@@ -339,7 +229,42 @@ var Processor = new function()
                         	var Vx = this.Registers[((opcode & "0x0F00") >>> 8)];
                             var VI = this.ISpecial;
                             this.ISpecial = VI + Vx;
-                            console.log("Register I: " + this.ISpecial);
+                            console.log("VI: " + this.ISpecial);
+                            break;
+                        }
+                        else if (i == 64) // StoreBCDRepVx
+                        {
+                            if (this.ISpecial >= 0 && this.ISpecial <= 511)
+                            {
+                                console.log("ERROR! ERROR! I refers to a locked location in memory.");
+                            }
+                            else
+                            {
+                                var Vx = this.Registers[((opcode & "0x0F00") >>> 8)];
+                                Vx = Math.floor(Vx / 100);
+                                this.Memory[this.ISpecial] = Vx;
+                                Vx = this.Registers[((opcode & "0x0F00") >>> 8)];
+                                Vx = Math.floor((Vx % 100) / 10);
+                                this.Memory[this.ISpecial + 1] = Vx;
+                                Vx = this.Registers[((opcode & "0x0F00") >>> 8)];
+                                Vx = Math.floor((Vx % 10) / 1);
+                                this.Memory[this.ISpecial + 2] = Vx;
+                                console.log("Memory[" + this.ISpecial + "]: " + this.Memory[this.ISpecial]);
+                                console.log("Memory[" + (this.ISpecial + 1) + "]: " + this.Memory[this.ISpecial + 1]);
+                                console.log("Memory[" + (this.ISpecial + 2) + "]: " + this.Memory[this.ISpecial + 2]);
+                            }
+                            break;
+                        }
+                        else if (i == 66) // StoreV0VxtoMemory
+                        {
+                            for (i = 0; i <= (opcode & "0x0F00") >>> 8; i++)
+                            {
+                                this.Memory[this.ISpecial + i] = this.Registers[i];
+                                console.log("Memory[" + (this.ISpecial + i) + "]: " + this.Memory[this.ISpecial + i]);
+                            }
+                            this.ISpecial += ((opcode & "0x0F00") >>> 8) + 1;
+                            console.log("VI: " + this.ISpecial);
+                            break;
                         }
                     }
                     else
@@ -366,7 +291,7 @@ var Processor = new function()
         {
 
         }
-        console.log("ST: " + this.soundTimer);
+        //console.log("DT: " + this.delayTimer);
     };
 
     this.display_test = function(test_opcode) // Display test
@@ -395,7 +320,7 @@ var Processor = new function()
                 }
             }
         }
- 
+
         this.PC += 2; // WHY INCREASE PC?
         console.log("Display test completed!");
     }
