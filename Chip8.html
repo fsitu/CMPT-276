@@ -5,7 +5,6 @@
         <script src="Chip8.js"></script>
         <script src="Graphics.js"></script>
         <script src="Fontset.js"></script>
-
     </head>
     <body>
         <div id="display" align="center">
@@ -14,31 +13,45 @@
             </canvas>
         </div>
         <script>
- 
-            var display_width = Processor.get_display_width(); // I THINK GET METHODS ARE NOT NECESSARY
+            var display_width = Processor.get_display_width();
             var display_height = Processor.get_display_height();
             var display = Processor.get_display();
-            var graphics = new graphics_render(document.getElementById('my_canvas'), display_width, display_height); // JUST DIRECTLY CALL GRAPHICS_RENDER. DON'T HAVE TO CREATE A NEW OBJECT
+            var graphics = new graphics_render(document.getElementById('my_canvas'), display_width, display_height);
             Processor.init();
             graphics.clear_display();
             Processor.display_test("0xD655");
             graphics.render(Processor.display);
-            
+
             Processor.main();
-            Processor.execute("0xF015"); // SetDelayTimer_VxTODT
-            Processor.execute("0xF118"); // SetSoundTimer
-            Processor.execute("0xF11E"); // AddVxIStore
-            
+            setTimeout(function()
+            {
+                Processor.execute("0xF015"); // SetDelayTimer
+            }, 100);
+            setTimeout(function()
+            {
+                Processor.execute("0xF118"); // SetSoundTimer
+            }, 200);
+            setTimeout(function()
+            {
+                Processor.execute("0xF11E"); // AddVxIStore
+            }, 300);
+            setTimeout(function()
+            {
+                Processor.execute("0xF355"); // StoreV0VxtoMemory
+            }, 400);
+            /*setTimeout(function()
+            {
+                Processor.execute("0xF033"); // StoreBCDRepVx
+            }, 500);*/
             setTimeout(function()
             {
                 Processor.execute("0xFA07") // SetVxtoDT
-            }, 40);
+            }, 600);
 
-            console.log("PC: " + Processor.PC);
-            Processor.execute("0x300A"); // SkipNextInstruction_VxEQkk
-            console.log("PC: " + Processor.PC);
-
-            setTimeout(function()
+            //console.log("PC: " + Processor.PC);
+            //Processor.execute("0x30A0"); // SkipNextInstruction_VxEQkk
+            //console.log("PC: " + Processor.PC);
+            /*setTimeout(function()
             {
                 Processor.execute("0xF20A"); // WaitSetVxtoKeyDown
             }, 1000);
@@ -46,10 +59,8 @@
             {
                 Processor.execute("0xE1A1");
                 console.log("PC: " + Processor.PC);
-                console.log("Registers: " + Processor.Registers); // SkipNextInstruction_KeyDown
-            }, 3000);
-
-
+                console.log("Registers: " + Processor.Registers); // SkipNextInstruction_KeyUp
+            }, 3000);*/
         </script>
     </body>
 </html>

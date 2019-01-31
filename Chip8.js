@@ -29,7 +29,7 @@ var Processor = new function()
     this.Memory[61] = ("0x001E" & "0x00FF");
     this.Memory[62] = ("0xF000" & "0xF000") >>> 8; // SetSpriteLocation
     this.Memory[63] = ("0x0029" & "0x00FF");
-    this.Memory[64] = ("0xF000" & "0xF000") >>> 8; // StoreIBCDRepVx
+    this.Memory[64] = ("0xF000" & "0xF000") >>> 8; // StoreBCDRepVx
     this.Memory[65] = ("0x0033" & "0x00FF");
     this.Memory[66] = ("0xF000" & "0xF000") >>> 8; // StoreV0VxtoMemory
     this.Memory[67] = ("0x0055" & "0x00FF");
@@ -37,7 +37,7 @@ var Processor = new function()
     this.Memory[69] = ("0x0065" & "0x00FF");
 
     this.Registers = new Uint8Array(16);
-    this.ISpecial; // A special register used to store a memory address
+    this.ISpecial; // Index register (a special register used to store a memory address)
     this.Stack = new Uint16Array(16);
     this.KeyboardBuffer = [];
 
@@ -49,24 +49,20 @@ var Processor = new function()
     this.delayTimer = 0;
     this.soundTimer = 0;
     this.PC = 0; // Program counter
-    this.I = 15; // Index register (WHAT IS THIS FOR?)
 
 	this.opcodeDone = false; // Tracks whether the current opcode is done executing
     this.pause = false;
 
-    this.init = function() // Resets values/variables
+    this.init = function() // Resets variables
     {
-        console.log("Memory[48]: " + this.Memory[48]);
-        console.log("Memory[49]: " + this.Memory[49]);
-
-        this.Registers[0] = 10;
+        this.Registers[0] = 180;
         this.Registers[1] = 6;
-        this.ISpecial = 5;
+        this.ISpecial = 520;
 
         // Loads the fontset into the memory
         for(i = 0; i < fontset.length; i++)
         {
-            this.Memory[70 + i] = fontset[i]; // I FIXED THIS.
+            this.Memory[70 + i] = fontset[i];
         }
         for (i = 0; i < this.display.length; i++)
         {
@@ -105,15 +101,29 @@ var Processor = new function()
                             var hexCode = this.Registers[(opcode & "0x0F00") >>> 8];
                             var convertHex = function(code) // Converts a hexadecimal into a keyboard input
                             {
+<<<<<<< HEAD
                                 var key_code = [49,50,51,52,81,87,69,82,65,83,68,70,90,88,67,86];
                                 for(i = 0; i <16; i++)//start
+=======
+                                var key_code =
+                                [
+                                    49, 50, 51, 52, 81, 87,
+                                    69, 82, 65, 83, 68, 70,
+                                    90, 88, 67, 86
+                                ];
+                                for(i = 0; i < 16; i++)
+>>>>>>> origin/JaxJosiah-patch-3
                                 {
                                     if(code == i)
                                     {
                                         return(key_code[i]);
                                     }
+<<<<<<< HEAD
                                 }//end
 
+=======
+                                }
+>>>>>>> origin/JaxJosiah-patch-3
                             };
 
                             var key = convertHex(hexCode);
@@ -129,15 +139,29 @@ var Processor = new function()
                             var hexCode = this.Registers[(opcode & "0x0F00") >>> 8];
                             var convertHex = function(code) // Converts a hexadecimal into a keyboard input
                             {
+<<<<<<< HEAD
                                 var key_code = [49,50,51,52,81,87,69,82,65,83,68,70,90,88,67,86];
                                 for(i = 0; i <16; i++) //start
+=======
+                                var key_code =
+                                [
+                                    49, 50, 51, 52, 81, 87,
+                                    69, 82, 65, 83, 68, 70,
+                                    90, 88, 67, 86
+                                ];
+                                for(i = 0; i < 16; i++)
+>>>>>>> origin/JaxJosiah-patch-3
                                 {
                                     if(code == i)
                                     {
                                         return(key_code[i]);
                                     }
+<<<<<<< HEAD
                                 }//end
 
+=======
+                                }
+>>>>>>> origin/JaxJosiah-patch-3
                             };
 
                             var key = convertHex(hexCode);
@@ -174,30 +198,44 @@ var Processor = new function()
                             document.onkeydown = function(key) // Is this necessary?
                             {
                                 var hex;
-                                for(i=0; i<16; i++) //start
+                                for(i = 0; i < 16; i++)
                                 {
+<<<<<<< HEAD
                                     var keys = [1,2,3,4,"Q","W","E","R","A","S","D","F","Z","X","C","V"];
 
                                     var key_code = [49,50,51,52,81,87,69,82,65,83,68,70,90,88,67,86];
+=======
+                                    var keys = [1, 2, 3, 4,
+                                        "Q", "W", "E", "R",
+                                        "A", "S", "D", "F",
+                                        "Z", "X", "C", "V"];
+                                    var key_code = [49, 50, 51, 52,
+                                        81, 87, 69, 82,
+                                        65, 83, 68, 70,
+                                        90, 88, 67, 86];
+>>>>>>> origin/JaxJosiah-patch-3
                                     if(key.keyCode == key_code[i])
                                     {
                                         valid = true;
                                         hex = i;
-                                        console.log(keys[i] + "is pressed!")
+                                        console.log(keys[i] + " is pressed!")
+                                        break;
                                     }
                                     else
                                     {
-                                        valid = false; // A invalid key is pressed.
+                                        valid = false; // An invalid key is pressed.
                                     }
+<<<<<<< HEAD
                                 } //end 
 
+=======
+                                }
+>>>>>>> origin/JaxJosiah-patch-3
 
                                 if (valid) // A valid key is pressed.
                                 {
                                     _this.pause = false;
                                     _this.Registers[((opcode & "0x0F00") >>> 8)] = hex;
-                                    console.log(_this.Registers[((opcode & "0x0F00") >>> 8)]);
-
                                     if (_this.KeyboardBuffer.length == 0)
                                     {
                                         _this.KeyboardBuffer.push(key.keyCode);
@@ -222,7 +260,42 @@ var Processor = new function()
                         	var Vx = this.Registers[((opcode & "0x0F00") >>> 8)];
                             var VI = this.ISpecial;
                             this.ISpecial = VI + Vx;
-                            console.log("Register I: " + this.ISpecial);
+                            console.log("VI: " + this.ISpecial);
+                            break;
+                        }
+                        else if (i == 64) // StoreBCDRepVx
+                        {
+                            if (this.ISpecial >= 0 && this.ISpecial <= 511)
+                            {
+                                console.log("ERROR! ERROR! I refers to a locked location in memory.");
+                            }
+                            else
+                            {
+                                var Vx = this.Registers[((opcode & "0x0F00") >>> 8)];
+                                Vx = Math.floor(Vx / 100);
+                                this.Memory[this.ISpecial] = Vx;
+                                Vx = this.Registers[((opcode & "0x0F00") >>> 8)];
+                                Vx = Math.floor((Vx % 100) / 10);
+                                this.Memory[this.ISpecial + 1] = Vx;
+                                Vx = this.Registers[((opcode & "0x0F00") >>> 8)];
+                                Vx = Math.floor((Vx % 10) / 1);
+                                this.Memory[this.ISpecial + 2] = Vx;
+                                console.log("Memory[" + this.ISpecial + "]: " + this.Memory[this.ISpecial]);
+                                console.log("Memory[" + (this.ISpecial + 1) + "]: " + this.Memory[this.ISpecial + 1]);
+                                console.log("Memory[" + (this.ISpecial + 2) + "]: " + this.Memory[this.ISpecial + 2]);
+                            }
+                            break;
+                        }
+                        else if (i == 66) // StoreV0VxtoMemory
+                        {
+                            for (i = 0; i <= (opcode & "0x0F00") >>> 8; i++)
+                            {
+                                this.Memory[this.ISpecial + i] = this.Registers[i];
+                                console.log("Memory[" + (this.ISpecial + i) + "]: " + this.Memory[this.ISpecial + i]);
+                            }
+                            this.ISpecial += ((opcode & "0x0F00") >>> 8) + 1;
+                            console.log("VI: " + this.ISpecial);
+                            break;
                         }
                     }
                     else
@@ -249,7 +322,7 @@ var Processor = new function()
         {
 
         }
-        console.log("ST: " + this.soundTimer);
+        //console.log("DT: " + this.delayTimer);
     };
 
     this.display_test = function(test_opcode) // Display test
@@ -257,11 +330,11 @@ var Processor = new function()
         var x_position = (test_opcode & 0x0F00) >> 8;
         var y_position = (test_opcode & 0x00F0) >> 4;
         var N = (test_opcode & 0x000F);
-        this.Registers[0xF] = 0; // WHY REGISTER[15]? AND MAYBE JUST USE NORMAL NUMBERS
+        this.Registers[0xF] = 0; // MAYBE JUST USE NORMAL NUMBERS
 
-        for (display_y = 0; display_y < N; display_y++) // I FIXED THIS.
+        for (display_y = 0; display_y < N; display_y++)
         {
-            var line = this.Memory[70 + this.I + display_y];
+            var line = this.Memory[70 + this.ISpecial + display_y]; // Just reads the special I register
             for(display_x = 0; display_x < 8; display_x++)
             {
                 var pixel = line & (0x80 >> display_x);
@@ -272,13 +345,13 @@ var Processor = new function()
                     var index = y_total * 64 + x_total;
                     if(this.display[index] == 1)
                     {
-                        this.Registers[0XF] = 1; // ERROR MAYBE?
+                        this.Registers[0xF] = 1;
                     }
                     this.display[index] ^= 1;
                 }
             }
         }
- 
+
         this.PC += 2; // WHY INCREASE PC?
         console.log("Display test completed!");
     }
