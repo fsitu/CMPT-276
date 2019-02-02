@@ -18,10 +18,6 @@ var graphics_render = function(canvas, width, height)
     {
     }
 
-    this.clear_display = function ()
-    {
-        this.canvas.fillRect(0, 0, this.width * 10, this.height * 10);
-    }
 
     this.render = function(display)
     {

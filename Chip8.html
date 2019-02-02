@@ -18,9 +18,9 @@
             var display = Processor.get_display();
             var graphics = new graphics_render(document.getElementById('my_canvas'), display_width, display_height);
             Processor.init();
-            graphics.clear_display();
-            Processor.display_test("0xD655");
+            // Processor.display_test("0xD655");
             graphics.render(Processor.display);
+            Processor.sprite_loc("0xF129");
 
             Processor.main();
             setTimeout(function()

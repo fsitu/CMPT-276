@@ -57,17 +57,14 @@ var Processor = new function()
     {
         this.Registers[0] = 180;
         this.Registers[1] = 6;
-        this.ISpecial = 520;
+        this.ISpecial = 100;
 
         // Loads the fontset into the memory
         for(i = 0; i < fontset.length; i++)
         {
             this.Memory[70 + i] = fontset[i];
         }
-        for (i = 0; i < this.display.length; i++)
-        {
-            this.display[i] = 0;
-        }
+        this.clear_display();
     };
 
     this.fetch = function() // Fetches from the program stored in the memory
@@ -101,10 +98,6 @@ var Processor = new function()
                             var hexCode = this.Registers[(opcode & "0x0F00") >>> 8];
                             var convertHex = function(code) // Converts a hexadecimal into a keyboard input
                             {
-<<<<<<< HEAD
-                                var key_code = [49,50,51,52,81,87,69,82,65,83,68,70,90,88,67,86];
-                                for(i = 0; i <16; i++)//start
-=======
                                 var key_code =
                                 [
                                     49, 50, 51, 52, 81, 87,
@@ -112,18 +105,12 @@ var Processor = new function()
                                     90, 88, 67, 86
                                 ];
                                 for(i = 0; i < 16; i++)
->>>>>>> origin/JaxJosiah-patch-3
                                 {
                                     if(code == i)
                                     {
                                         return(key_code[i]);
                                     }
-<<<<<<< HEAD
-                                }//end
-
-=======
                                 }
->>>>>>> origin/JaxJosiah-patch-3
                             };
 
                             var key = convertHex(hexCode);
@@ -139,10 +126,6 @@ var Processor = new function()
                             var hexCode = this.Registers[(opcode & "0x0F00") >>> 8];
                             var convertHex = function(code) // Converts a hexadecimal into a keyboard input
                             {
-<<<<<<< HEAD
-                                var key_code = [49,50,51,52,81,87,69,82,65,83,68,70,90,88,67,86];
-                                for(i = 0; i <16; i++) //start
-=======
                                 var key_code =
                                 [
                                     49, 50, 51, 52, 81, 87,
@@ -150,18 +133,12 @@ var Processor = new function()
                                     90, 88, 67, 86
                                 ];
                                 for(i = 0; i < 16; i++)
->>>>>>> origin/JaxJosiah-patch-3
                                 {
                                     if(code == i)
                                     {
                                         return(key_code[i]);
                                     }
-<<<<<<< HEAD
-                                }//end
-
-=======
                                 }
->>>>>>> origin/JaxJosiah-patch-3
                             };
 
                             var key = convertHex(hexCode);
@@ -200,11 +177,6 @@ var Processor = new function()
                                 var hex;
                                 for(i = 0; i < 16; i++)
                                 {
-<<<<<<< HEAD
-                                    var keys = [1,2,3,4,"Q","W","E","R","A","S","D","F","Z","X","C","V"];
-
-                                    var key_code = [49,50,51,52,81,87,69,82,65,83,68,70,90,88,67,86];
-=======
                                     var keys = [1, 2, 3, 4,
                                         "Q", "W", "E", "R",
                                         "A", "S", "D", "F",
@@ -213,7 +185,6 @@ var Processor = new function()
                                         81, 87, 69, 82,
                                         65, 83, 68, 70,
                                         90, 88, 67, 86];
->>>>>>> origin/JaxJosiah-patch-3
                                     if(key.keyCode == key_code[i])
                                     {
                                         valid = true;
@@ -225,12 +196,7 @@ var Processor = new function()
                                     {
                                         valid = false; // An invalid key is pressed.
                                     }
-<<<<<<< HEAD
-                                } //end 
-
-=======
                                 }
->>>>>>> origin/JaxJosiah-patch-3
 
                                 if (valid) // A valid key is pressed.
                                 {
@@ -325,16 +291,16 @@ var Processor = new function()
         //console.log("DT: " + this.delayTimer);
     };
 
-    this.display_test = function(test_opcode) // Display test
+    this.display_test = function(test_opcode) //DXYN opcode implementation
     {
-        var x_position = (test_opcode & 0x0F00) >> 8;
-        var y_position = (test_opcode & 0x00F0) >> 4;
+        var x_position = (test_opcode & 0x0F00) >> 8; // it really should be this.Registers[(test_opcode & 0x0F00) >> 8]; I didnt use this because it is easier to test
+        var y_position = (test_opcode & 0x00F0) >> 4; // it really should be this.Registers[(test_opcode & 0x00F0) >> 4]; I didnt use this because it is easier to test
         var N = (test_opcode & 0x000F);
         this.Registers[0xF] = 0; // MAYBE JUST USE NORMAL NUMBERS
 
         for (display_y = 0; display_y < N; display_y++)
         {
-            var line = this.Memory[70 + this.ISpecial + display_y]; // Just reads the special I register
+            var line = this.Memory[this.ISpecial + display_y]; // Just reads the special I register
             for(display_x = 0; display_x < 8; display_x++)
             {
                 var pixel = line & (0x80 >> display_x);
@@ -355,7 +321,21 @@ var Processor = new function()
         this.PC += 2; // WHY INCREASE PC?
         console.log("Display test completed!");
     }
-
+    this.sprite_loc = function(test_opcode) //FX29 implementation
+    {
+        //Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font.
+        var sprite_value = this.Registers[(test_opcode & 0x0F00) >> 8];
+        this.ISpecial = 70 + (sprite_value * 5 );
+        console.log("the fontset is:" + sprite_value + "|" +"the fontset location is:" + this.ISpecial);
+        this.PC += 2;     
+    }
+    this.clear_display = function() //00E0 opcode implementation 
+    {
+        for (i = 0; i < this.display.length; i++)
+        {
+            this.display[i] = 0;
+        }
+    }
     this.get_display_width = function() // Get display methods
     {
         return this.display_width;
