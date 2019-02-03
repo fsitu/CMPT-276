@@ -20,7 +20,9 @@
             Processor.init();
             // Processor.display_test("0xD655");
             graphics.render(Processor.display);
-            Processor.sprite_loc("0xF129");
+            Processor.stack_return();
+            Processor.jp_addr("0x13f4");
+            Processor.call_addr("0x25c4");
 
             Processor.main();
             setTimeout(function()

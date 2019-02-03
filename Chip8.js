@@ -39,6 +39,7 @@ var Processor = new function()
     this.Registers = new Uint8Array(16);
     this.ISpecial; // Index register (a special register used to store a memory address)
     this.Stack = new Uint16Array(16);
+    this.Stack_pointer = 5; //stack pointer to keep track of our stack length 
     this.KeyboardBuffer = [];
 
     this.display_width = 64; // Display data
@@ -58,6 +59,18 @@ var Processor = new function()
         this.Registers[0] = 180;
         this.Registers[1] = 6;
         this.ISpecial = 100;
+        for(i = 0; i < this.Stack.length; i ++) //randomize stack values
+        {
+            var random = Math.floor((Math.random() * 255) + 1);
+            this.Stack[i] = random;
+        }
+        
+
+        for(i = 0; i < this.Registers.length; i ++) //randomize register values
+        {
+            var random = Math.floor((Math.random() * 255) + 1);
+            this.Registers[i] = random;
+        }
 
         // Loads the fontset into the memory
         for(i = 0; i < fontset.length; i++)
@@ -65,6 +78,11 @@ var Processor = new function()
             this.Memory[70 + i] = fontset[i];
         }
         this.clear_display();
+        console.log("stack:");
+        console.log(this.Stack);
+        console.log("registers:");
+        console.log(this.Registers);
+        console.log("stack point:" + this.Stack_pointer);
     };
 
     this.fetch = function() // Fetches from the program stored in the memory
@@ -291,11 +309,11 @@ var Processor = new function()
         //console.log("DT: " + this.delayTimer);
     };
 
-    this.display_test = function(test_opcode) //DXYN opcode implementation
+    this.display_test = function(opcode) //DXYN opcode implementation
     {
-        var x_position = (test_opcode & 0x0F00) >> 8; // it really should be this.Registers[(test_opcode & 0x0F00) >> 8]; I didnt use this because it is easier to test
-        var y_position = (test_opcode & 0x00F0) >> 4; // it really should be this.Registers[(test_opcode & 0x00F0) >> 4]; I didnt use this because it is easier to test
-        var N = (test_opcode & 0x000F);
+        var x_position = (opcode & 0x0F00) >> 8; // it really should be this.Registers[(test_opcode & 0x0F00) >> 8]; I didnt use this because it is easier to test
+        var y_position = (opcode & 0x00F0) >> 4; // it really should be this.Registers[(test_opcode & 0x00F0) >> 4]; I didnt use this because it is easier to test
+        var N = (opcode & 0x000F);
         this.Registers[0xF] = 0; // MAYBE JUST USE NORMAL NUMBERS
 
         for (display_y = 0; display_y < N; display_y++)
@@ -321,21 +339,237 @@ var Processor = new function()
         this.PC += 2; // WHY INCREASE PC?
         console.log("Display test completed!");
     }
-    this.sprite_loc = function(test_opcode) //FX29 implementation
+    this.sprite_loc = function(opcode) //FX29 implementation
     {
         //Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font.
-        var sprite_value = this.Registers[(test_opcode & 0x0F00) >> 8];
+        var sprite_value = this.Registers[(opcode & 0x0F00) >> 8];
         this.ISpecial = 70 + (sprite_value * 5 );
         console.log("the fontset is:" + sprite_value + "|" +"the fontset location is:" + this.ISpecial);
         this.PC += 2;     
     }
-    this.clear_display = function() //00E0 opcode implementation 
+    this.clear_display = function(opcode) //00E0 opcode implementation 
     {
+        //clears display
         for (i = 0; i < this.display.length; i++)
         {
             this.display[i] = 0;
         }
+        this.PC +=2;
+
     }
+
+    this.stack_return = function() //00EE - Return from a subroutine.
+    {
+        //The interpreter sets the program counter to the address at the top of the stack, then subtracts 1 from the stack pointer.
+        this.PC = this.Stack[this.Stack_pointer];            
+        this.Stack_pointer -= 1; 
+        console.log("PC:" + this.PC + "SP:" + this.Stack_pointer);
+
+    }
+
+
+    this.jp_addr = function(opcode) //1nnn Return from a subroutine.
+    {
+        this.PC = opcode & 0x0FFF;
+        console.log("this PC:" + this.PC);
+    
+    }
+
+    this.call_addr = function(opcode) //2nnn - CALL addr
+    {
+        //The interpreter increments the stack pointer, then puts the current PC on the top of the stack. The PC is then set to nnn.
+        this.Stack[this.Stack_pointer] = this.PC; 
+        this.Stack_pointer ++;                               
+        this.PC = opcode & 0x0FFF;
+        console.log("SP:" + this.Stack_pointer + "PC" + this.PC);
+        console.log(this.Stack);
+    }
+
+    this.skip_inst = function(opcode)//3xkk - SE Vx, byte
+    {
+        //The interpreter compares register Vx to kk, and if they are equal, increments the program counter by 2.
+        var kk_value = opcode & 0x00FF;
+        var reg_value = this.Registers[(opcode & 0x0F00)>>8];
+        if(kk_value == reg_value)
+        {
+            this.PC += 2;
+        }
+        
+
+    }
+
+    this.skip_inst_2 = function(opcode)//4xkk - SNE Vx, byte
+    {
+        //The interpreter compares register Vx to kk, and if they are not equal, increments the program counter by 2.
+        var kk_value = opcode & 0x00FF;
+        var reg_value = this.Registers[(opcode & 0x0F00)>>8];
+        if(kk_value != reg_value)
+        {
+            this.PC += 2;
+        }
+    }
+
+    this.skip_inst_3 = function(opcode) //5xy0 - SE Vx, Vy
+    {
+        //The interpreter compares register Vx to register Vy, and if they are equal, increments the program counter by 2.
+        var reg_x = this.Registers[(opcode & 0x0F00) >> 8];
+        var reg_y = this.Registers[(opcode & 0x00F0) >> 4];
+        if(reg_x == reg_y)
+        {
+            this.PC += 2;
+        }
+    }
+
+    this.LD_1 = function(opcode) //6xkk - LD Vx, byte
+    {
+        //The interpreter puts the value kk into register Vx
+        this.Registers[(opcode & 0x0F00) >> 8] = opcode & 0x00FF;
+        this.PC +=2;
+
+    }
+
+    this.add = function(opcode)//7xkk - ADD Vx, byte
+    {
+        //Adds the value kk to the value of register Vx, then stores the result in Vx. 
+        var x = (opcode & 0x0F00)>>8;
+        var reg_x = this.Registers[x];
+        var sum = (opcode & 0x00FF) + reg_x;
+        this.Registers[x] = sum;
+        this.PC +=2;
+
+
+    }
+
+    this.LD_2 = function(opcode)//8xy0 - LD Vx, Vy
+    {
+        //Stores the value of register Vy in register Vx.
+        var x = (opcode & 0x0F00) >> 8;
+        var reg_y = this.Registers[(opcode & 0x00F0) >> 4];
+        this.Registers[x] = reg_y;
+        this.PC +=2;
+
+    }
+
+    this.OR_1 = function(opcode)//8xy1 - OR Vx, Vy
+    {
+        //Performs a bitwise OR on the values of Vx and Vy, then stores the result in Vx.
+        var reg_x = this.Registers[(opcode & 0x0F00)>>8];
+        var reg_y = this.Registers[(opcode & 0x00F0)>>4];
+        var result = reg_x | reg_y;
+        this.Registers[(opcode & 0x0F00)>>8] = result;
+        this.PC +=2;
+
+    }
+
+    this.AND_XY = function(opcode)//8xy2 - AND Vx, Vy
+    {
+        //Performs a bitwise AND on the values of Vx and Vy, then stores the result in Vx.
+        var reg_x = this.Registers[(opcode & 0x0F00)>>8];
+        var reg_y = this.Registers[(opcode & 0x00F0)>>4];
+        var result = reg_x & reg_y;
+        this.Registers[(opcode & 0x0F00)>>8] = result;
+        this.PC +=2;
+    }
+
+    this.XOR_XY = function(opcode) //8xy3 - XOR Vx, Vy
+    {
+        //Performs a bitwise exclusive OR on the values of Vx and Vy, then stores the result in Vx
+        var reg_x = this.Registers[(opcode & 0x0F00)>>8];
+        var reg_y = this.Registers[(opcode & 0x00F0)>>4];
+        var result = reg_x ^ reg_y;
+        this.Registers[(opcode & 0x0F00)>>8] = result;
+        this.PC+=2;
+    }
+
+    this.ADD_XY = function(opcode) //8xy4 - ADD Vx, Vy
+    {
+        //The values of Vx and Vy are added together. If the result is greater than 8 bits (i.e., > 255,) VF is set to 1, otherwise 0. Only the lowest 8 bits of the result are kept, and stored in Vx.
+        var reg_x = this.Registers[(opcode & 0x0F00)>>8];
+        var reg_y = this.Registers[(opcode & 0x00F0)>>4];
+        var sum = reg_x + reg_y;
+        if(sum > 255)
+        {
+            this.Registers[0xF] = 1;
+        }
+        else
+        {
+            this.Registers[0xF] = 0;
+        }
+        this.Registers[(opcode & 0x0F00)>>8] = sum & 0xFF;
+        this.PC += 2;
+
+    }
+
+    this.SUB_XY = function(opcode) //8xy5 - SUB Vx, Vy
+    {
+        //If Vx > Vy, then VF is set to 1, otherwise 0. Then Vy is subtracted from Vx, and the results stored in Vx.
+        var reg_x = this.Registers[(opcode & 0x0F00)>>8];
+        var reg_y = this.Registers[(opcode & 0x00F0)>>4];
+        var sub = reg_x - reg_y;
+        if(reg_x > reg_y)
+        {
+            this.Registers[0xF] = 1;
+        }
+        else
+        {
+            this.Registers[0xF] = 0;
+        }
+        this.Registers[(opcode & 0x0F00)>>8] = sub;
+        this.PC +=2;
+
+    }
+
+    this.SHR_XY = function(opcode) //8xy6 - SHR Vx {, Vy}
+    {
+        var x = (opcode & 0x0F00)>>8;
+        //Stores the least significant bit of VX in VF and then shifts VX to the right by 1
+        this.Registers[0xF] = this.Registers[x] & 0x1;
+        //Set Vx = Vx SHR 1.
+        this.Registers[x] = this.Registers[x] >> 1;
+        this.PC +=2;
+
+    }
+
+    this.SUBN = function(opcode) //8xy7 - SUBN Vx, Vy
+    {
+        //If Vy > Vx, then VF is set to 1, otherwise 0. Then Vx is subtracted from Vy, and the results stored in Vx.
+        var reg_x = this.Registers[(opcode & 0x0F00)>>8];
+        var reg_y = this.Registers[(opcode & 0x00F0)>>4];
+        var sub = reg_y - reg_x;
+        if(reg_y > reg_x)
+        {
+            this.Registers[0xF] = 1;
+        }
+        else
+        {
+            this.Registers[0xF] = 0;
+        }
+        this.Registers[(opcode & 0x0F00)>>8] = sub;
+        this.PC += 2;
+    }
+
+    this.SHL = function(opcode) //8xyE - SHL Vx {, Vy}
+    {
+        //stores the most significant bit of VX in VF and then shifts VX to the left by 1
+        var x = (opcode & 0x0F00)>>8;
+        this.Registers[0xF] = this.Registers[x] & 0x80;
+        this.Registers[x] = this.Registers[x] << 1;
+        this.PC += 2; 
+
+    }
+
+    this.SNE = function(opcode) //9xy0 - SNE Vx, Vy
+    {
+        //The values of Vx and Vy are compared, and if they are not equal, the program counter is increased by 2.
+        var reg_x = this.Registers[(opcode & 0x0F00)>>8];
+        var reg_y = this.Registers[(opcode & 0x00F0)>>4];
+        if(reg_x != reg_y)
+        {
+            this.PC += 2;
+        }
+    }
+
+
     this.get_display_width = function() // Get display methods
     {
         return this.display_width;
