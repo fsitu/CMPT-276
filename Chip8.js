@@ -79,7 +79,7 @@ var Processor = new function()
     this.Memory[69] = ("0x0065" & "0x00FF");
 
     this.Registers = new Uint8Array(16);
-    this.ISpecial; // Index register (a special register used to store a memory address)
+    this.ISpecial = 70; // Index register (a special register used to store a memory address)
     this.Stack = new Uint16Array(16);
     this.KeyboardBuffer = [];
 
@@ -496,24 +496,38 @@ var Processor = new function()
                         }
                         else if (i == 66) // StoreV0VxtoMemory
                         {
-                            for (i = 0; i <= (opcode & "0x0F00") >>> 8; i++)
+                            if (this.ISpecial >= 0 && this.ISpecial <= 511)
                             {
-                                this.Memory[this.ISpecial + i] = this.Registers[i];
-                                console.log("Memory[" + (this.ISpecial + i) + "]: " + this.Memory[this.ISpecial + i]);
+                                console.log("ERROR! ERROR! I refers to a locked location in memory.");
                             }
-                            this.ISpecial += ((opcode & "0x0F00") >>> 8) + 1;
-                            console.log("VI: " + this.ISpecial);
+                            else
+                            {
+                                for (i = 0; i <= (opcode & "0x0F00") >>> 8; i++)
+                                {
+                                    this.Memory[this.ISpecial + i] = this.Registers[i];
+                                    console.log("Memory[" + (this.ISpecial + i) + "]: " + this.Memory[this.ISpecial + i]);
+                                }
+                                this.ISpecial += ((opcode & "0x0F00") >>> 8) + 1;
+                                console.log("VI: " + this.ISpecial);
+                            }
                             break;
                         }
                         else if (i == 68) // ReadMemoryWriteV0Vx
                         {
-                            for (i = 0; i <= (opcode & "0x0F00") >>> 8; i++)
+                            if (this.ISpecial >= 0 && this.ISpecial <= 511)
                             {
-                                this.Registers[i] = this.Memory[this.ISpecial + i];
-                                console.log("V" + i + ": " + this.Registers[i]);
+                                console.log("ERROR! ERROR! I refers to a locked location in memory.");
                             }
-                            this.ISpecial += ((opcode & "0x0F00") >>> 8) + 1;
-                            console.log("VI: " + this.ISpecial);
+                            else
+                            {
+                                for (i = 0; i <= (opcode & "0x0F00") >>> 8; i++)
+                                {
+                                    this.Registers[i] = this.Memory[this.ISpecial + i];
+                                    console.log("V" + i + ": " + this.Registers[i]);
+                                }
+                                this.ISpecial += ((opcode & "0x0F00") >>> 8) + 1;
+                                console.log("VI: " + this.ISpecial);
+                            }
                             break;
                         }
                     }
@@ -545,10 +559,10 @@ var Processor = new function()
 
     this.display_test = function(test_opcode) // DXYN opcode implementation
     {
-        var x_position = (test_opcode & 0x0F00) >>> 8;
-        var y_position = (test_opcode & 0x00F0) >>> 4;
-        //var x_position = this.Registers[(test_opcode & 0x0F00) >>> 8]; // Should be this instead
-        //var y_position = this.Registers[(test_opcode & 0x00F0) >>> 4]; // Should be this instead
+        //var x_position = (test_opcode & 0x0F00) >>> 8;
+        //var y_position = (test_opcode & 0x00F0) >>> 4;
+        var x_position = this.Registers[((test_opcode & "0x0F00") >>> 8)];
+        var y_position = this.Registers[((test_opcode & "0x00F0") >>> 4)];
         var N = (test_opcode & 0x000F);
         this.Registers[0xF] = 0;
 
@@ -604,11 +618,18 @@ var Processor = new function()
         // Returns from a subroutine
         // The interpreter sets the PC to the address at the top of the stack
         // Then subtracts 1 from the stack pointer
-        this.PC = this.Stack[(this.Stack_pointer - 1)];
-        this.Stack[(this.Stack_pointer - 1)] = 0; // Resets the stack element
-        this.Stack_pointer--;
-        console.log("PC: " + this.PC + " | SP:" + this.Stack_pointer);
-        console.log("The stack: " + this.Stack);
+        if (!(typeof (this.Stack[(this.Stack_pointer - 1)]) === "undefined"))
+        {
+            this.PC = this.Stack[(this.Stack_pointer - 1)];
+            this.Stack[(this.Stack_pointer - 1)] = 0; // Resets the stack element
+            this.Stack_pointer--;
+            console.log("PC: " + this.PC + " | SP:" + this.Stack_pointer);
+            console.log("The stack: " + this.Stack);
+        }
+        else
+        {
+            console.log("ERROR! ERROR! The stack pointer is out-of-bounds.")
+        }
     }
     this.jp_addr = function(opcode) // 1nnn opcode implementation
     {
