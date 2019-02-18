@@ -1,4 +1,4 @@
-var Processor = new function()
+var Processor = new function() // Should be "Chip-8" instead of "Processor"
 {
     this.Memory = new Uint8Array(4096);
     // Stores instructions
@@ -42,9 +42,9 @@ var Processor = new function()
     this.Memory[35] = ("0x0007" & "0x000F");
     this.Memory[36] = ("0x8000" & "0xF000") >>> 8; // this.SHL()
     this.Memory[37] = ("0x000E" & "0x000F");
-
     this.Memory[38] = ("0x9000" & "0xF000") >>> 8; // SkipIfVxNotVy
     this.Memory[39] = ("0x0000" & "0x000F");
+
     this.Memory[40] = ("0xA000" & "0xF000") >>> 8; // SetItoNNN
     this.Memory[41] = ("0x0000" & "0x0000");
     this.Memory[42] = ("0xB000" & "0xF000") >>> 8; // JumptoAddressAddV0
@@ -88,25 +88,34 @@ var Processor = new function()
     this.display = new Array(this.display_width * this.display_height); // JUST USE ARRAY = []. MUCH EASIER
     console.log("Display Length: " + this.display.length);
 
-    this.delayTimer = 0;
-    this.soundTimer = 0;
-    this.PC = 510; // Program counter
-    this.Stack_pointer = 0; // The stack pointer to keep track of the length of the stack
+    this.delayTimer;
+    this.soundTimer;        // -1 means that the tone has already been played
+    this.PC;                // Program counter
+    this.Stack_pointer;     // The stack pointer to keep track of the length of the stack
 
+    this.analyze_mode = false; // If true, we can stop and execute one opcode at a time
 	this.opcodeDone = true; // Tracks whether the current opcode is done executing
     this.pause = false;
 
     this.init = function() // Resets variables
     {
-        this.Registers[0] = 180;
-        this.Registers[1] = 9;
-        this.Registers[2] = 6;
-        this.Registers[4] = 126;
-        this.Registers[6] = 11;
-        this.ISpecial = 80;
+        for (let i = 0; i < 16; i++)
+        {
+            this.Registers[i] = 0;  // Resets the registers
+            this.Stack[i] = 0;      // Resets the stack
+        }
 
+        this.KeyboardBuffer = [];
+        this.ISpecial = 0;
+
+        this.delayTimer = 0;
+        this.soundTimer = -1;
         this.PC = 510 // The default value so that the next PC would be 512
+        this.Stack_pointer = 0;
+
+        this.analyze_mode = false;
         this.opcodeDone = true; // The default value so that fetch(), which is in main(), can run
+        this.pause = false;
 
         // Loads the fontset into the memory
         for(i = 0; i < fontset.length; i++)
@@ -121,25 +130,35 @@ var Processor = new function()
     this.load = function(filename) // Loads a Chip8 program
     {
         var file = new XMLHttpRequest();
-        file.open("GET", filename, false);
-        file.onreadystatechange = function()
+        file.open("GET", filename);
+        file.responseType = "arraybuffer";
+        file.onload = function()
         {
-            if (file.readyState === 4)
+            var Program = new Uint8Array(file.response);
+            var program_length = 0; // The length of the Chip-8 program
+            for (let i = 0; i < Program.length; i += 2) // May produce a Memory error if 2 * i > 3584
             {
-                if (file.status === 200 || file.status == 0)
+                let opc1 = Program[i].toString(16);
+                let opc2 = Program[i + 1].toString(16);
+                if (opc1.length == 1)
                 {
-                    var Program = file.responseText;
-                    var opcs = Program.split("\n");
-                    for (let i = 0; i < opcs.length; i++) // May produce a Memory error if 2 * i > 3584
-                    {
-                        Processor.Memory[512 + 2 * i] = (opcs[i] & "0xFF00") >>> 8;
-                        Processor.Memory[512 + 2 * i + 1] = (opcs[i] & "0x00FF");
-                    }
+                    opc1 = "0" + opc1;
+                }
+                if (opc2.length == 1)
+                {
+                    opc2 = "0" + opc2;
+                }
+                let opc = "0x" + opc1 + opc2; // Not necessary
+                if (!isNaN(Program[i]) && !isNaN(Program[i + 1])) // Makes sure the next opcode is actually a number
+                {
+                    program_length++;
+                    Processor.Memory[512 + 2 * (program_length - 1)] = (opc & "0xFF00") >>> 8; // Use opc1
+                    Processor.Memory[512 + 2 * (program_length - 1) + 1] = (opc & "0x00FF");   // Use opc2
                 }
             }
         }
         file.send(null);
-    }
+    };
 
     this.fetch = function() // Fetches the next opcode from the program stored in the memory
     {
@@ -147,18 +166,29 @@ var Processor = new function()
         this.PC += 2;
         console.log("Fetch! Increase the PC by 2!");
         console.log("PC: " + this.PC);
+
         // Creates the opcode
-        let opc1 = this.Memory[this.PC].toString(16)
-        let opc2 = this.Memory[this.PC + 1].toString(16);
-        if (opc1.length == 1)
+        let nextOpc;
+        if (this.PC < 512 || this.PC > 4095) // Checks for an error
         {
-            opc1 = "0" + opc1;
+            console.log("ERROR! ERROR! PC is out of bounds! Ending the program...");
+            nextOpc = 0;
         }
-        if (opc2.length == 1)
+        else
         {
-            opc2 = "0" + opc2;
+            let opc1 = this.Memory[this.PC].toString(16)
+            let opc2 = this.Memory[this.PC + 1].toString(16);
+            if (opc1.length == 1)
+            {
+                opc1 = "0" + opc1;
+            }
+            if (opc2.length == 1)
+            {
+                opc2 = "0" + opc2;
+            }
+            nextOpc = "0x" + opc1 + opc2;
         }
-        let nextOpc = "0x" + opc1 + opc2;
+
         // Executes the opcode
         if (nextOpc != 0)
         {
@@ -343,9 +373,9 @@ var Processor = new function()
                                 [49, 50, 51, 52, 81, 87,
                                     69, 82, 65, 83, 68, 70,
                                     90, 88, 67, 86];
-                                for(i = 0; i < 16; i++)
+                                for (i = 0; i < 16; i++)
                                 {
-                                    if(code == i)
+                                    if (code == i)
                                     {
                                         return(key_code[i]);
                                     }
@@ -353,7 +383,11 @@ var Processor = new function()
                             };
 
                             var key = convertHex(hexCode);
-                            if (this.KeyboardBuffer[0] == key)
+                            if (typeof key == "undefined")
+                            {
+                                console.log("ERROR! ERROR! The hexadecimal value in Vx is too big.");
+                            }
+                            if (this.KeyboardBuffer[0] == key && typeof key != "undefined")
                             {
                                 this.PC += 2;
                                 console.log("This KeyDown stuff works!");
@@ -369,9 +403,9 @@ var Processor = new function()
                                 [49, 50, 51, 52, 81, 87,
                                     69, 82, 65, 83, 68, 70,
                                     90, 88, 67, 86];
-                                for(i = 0; i < 16; i++)
+                                for (i = 0; i < 16; i++)
                                 {
-                                    if(code == i)
+                                    if (code == i)
                                     {
                                         return(key_code[i]);
                                     }
@@ -379,7 +413,11 @@ var Processor = new function()
                             };
 
                             var key = convertHex(hexCode);
-                            if (this.KeyboardBuffer[0] != key)
+                            if (typeof key == "undefined")
+                            {
+                                console.log("ERROR! ERROR! The hexadecimal value in Vx is too big.");
+                            }
+                            if (this.KeyboardBuffer[0] != key && typeof key != "undefined")
                             {
                                 this.PC += 2;
                                 console.log("This KeyUp stuff works!");
@@ -412,7 +450,7 @@ var Processor = new function()
                             document.onkeydown = function(key) // Is this necessary?
                             {
                                 var hex;
-                                for(i = 0; i < 16; i++)
+                                for (i = 0; i < 16; i++)
                                 {
                                     var keys = [1, 2, 3, 4,
                                         "Q", "W", "E", "R",
@@ -422,7 +460,7 @@ var Processor = new function()
                                         81, 87, 69, 82,
                                         65, 83, 68, 70,
                                         90, 88, 67, 86];
-                                    if(key.keyCode == key_code[i])
+                                    if (key.keyCode == key_code[i])
                                     {
                                         valid = true;
                                         hex = i;
@@ -539,7 +577,7 @@ var Processor = new function()
             }
         }
         this.opcodeDone = true;
-    }
+    };
 
     this.TickTimers = function() // The timers will decrease by one at a rate of 60Hz.
     {
@@ -547,20 +585,20 @@ var Processor = new function()
         {
             this.delayTimer--;
         }
-        if (this.soundTimer > 0)
+        if (this.soundTimer >= 0) // -1 means that the tone has already been played
         {
             this.soundTimer--;
         }
         if (this.soundTimer == 0) // Plays a tone when the sound timer reaches 0
         {
+            let tone = document.getElementById("Tone");
+            tone.play();
         }
-        //console.log("DT: " + this.delayTimer);
+        //console.log("ST: " + this.soundTimer);
     };
 
     this.display_test = function(test_opcode) // DXYN opcode implementation
     {
-        //var x_position = (test_opcode & 0x0F00) >>> 8;
-        //var y_position = (test_opcode & 0x00F0) >>> 4;
         var x_position = this.Registers[((test_opcode & "0x0F00") >>> 8)];
         var y_position = this.Registers[((test_opcode & "0x00F0") >>> 4)];
         var N = (test_opcode & 0x000F);
@@ -587,14 +625,14 @@ var Processor = new function()
         }
 
         console.log("Display test completed!");
-    }
+    };
     this.sprite_loc = function(test_opcode) // FX29 implementation
     {
         // Sets I to the location of the sprite for the character in Vx. Characters 0-F (in hexadecimal) are represented by a 4x5 font.
         var sprite_value = this.Registers[(test_opcode & 0x0F00) >>> 8];
         this.ISpecial = 70 + (sprite_value * 5);
         console.log("The fontset is: " + sprite_value + ", and the fontset location is: " + this.ISpecial);
-    }
+    };
     this.clear_display = function() // 00E0 opcode implementation 
     {
         // Clears the screen
@@ -603,7 +641,7 @@ var Processor = new function()
             this.display[i] = 0;
         }
         console.log("Cleared the display!");
-    }
+    };
     this.exec_subrout = function(opcode) // 0nnn opcode implementation
     {
         // BUGGY!
@@ -612,7 +650,7 @@ var Processor = new function()
         this.PC = opcode & 0x0FFF;
         console.log("SP: " + this.Stack_pointer + " | PC: " + this.PC);
         console.log("The stack: " + this.Stack);
-    }
+    };
     this.stack_return = function() // 00EE opcode implementation
     {
         // Returns from a subroutine
@@ -630,22 +668,35 @@ var Processor = new function()
         {
             console.log("ERROR! ERROR! The stack pointer is out-of-bounds.")
         }
-    }
+    };
     this.jp_addr = function(opcode) // 1nnn opcode implementation
     {
         this.PC = opcode & 0x0FFF;
-        console.log("PC: " + this.PC);
-    }
+        this.PC -= 2;
+        console.log("PC jumped to: " + this.PC);
+        if (this.PC % 2 != 0) // Checks for an error
+        {
+            console.log("ERROR! ERROR! PC refers to an odd number."); // Gives an error without a shutdown
+        }
+    };
     this.call_addr = function(opcode) // 2nnn - CALL addr
     {
         // Increments the stack pointer
         // Then puts the current PC on top of the stack. The PC is then set to nnn.
-        this.Stack[this.Stack_pointer] = this.PC;
-        this.Stack_pointer++;
-        this.PC = opcode & 0x0FFF;
-        console.log("SP: " + this.Stack_pointer + " | PC: " + this.PC);
-        console.log("The stack: " + this.Stack);
-    }
+        if (this.Stack_pointer < this.Stack.length)
+        {
+            this.Stack[this.Stack_pointer] = this.PC;
+            this.Stack_pointer++;
+            this.PC = opcode & 0x0FFF;
+            this.PC -= 2;
+            console.log("SP: " + this.Stack_pointer + " | PC: " + this.PC);
+            console.log("The stack: " + this.Stack);
+        }
+        else // Gives an error if the stack is full
+        {
+            console.log("ERROR! ERROR! The stack is full.")
+        }
+    };
     this.skip_inst_2 = function(opcode) // 4xkk - SNE Vx, byte
     {
         // The interpreter compares Vx to kk, and if they are not equal, increments the PC by 2
@@ -656,7 +707,7 @@ var Processor = new function()
             this.PC += 2;
         }
         console.log("PC: " + Processor.PC);
-    }
+    };
     this.skip_inst_3 = function(opcode) // 5xy0 - SE Vx, Vy
     {
         // Compares Vx to Vy, and if they are equal, increments the PC by 2
@@ -667,14 +718,14 @@ var Processor = new function()
             this.PC += 2;
         }
         console.log("PC: " + Processor.PC);
-    }
+    };
     this.LD_1 = function(opcode) // 6xkk - LD Vx, byte
     {
         // The interpreter puts the value kk into Vx
         this.Registers[(opcode & 0x0F00) >>> 8] = opcode & 0x00FF;
         let x = (opcode & 0x0F00) >>> 8;
         console.log("V" + x + ": " + this.Registers[x]);
-    }
+    };
     this.ADD = function(opcode) // 7xkk - ADD Vx, byte
     {
         // Adds the value kk to Vx
@@ -683,7 +734,7 @@ var Processor = new function()
         let kk = (opcode & 0x00FF);
         this.Registers[x] += kk;
         console.log("V" + x + ": " + this.Registers[x]);
-    }
+    };
     this.LD_2 = function(opcode) // 8xy0 - LD Vx, Vy
     {
         // Stores the value of Vy in Vx.
@@ -693,7 +744,7 @@ var Processor = new function()
         let y = (opcode & "0x00F0") >>> 4;
         console.log("V" + x + ": " + this.Registers[x]);
         console.log("V" + y + ": " + this.Registers[y]);
-    }
+    };
     this.OR_1 = function(opcode) // 8xy1 - OR Vx, Vy
     {
         // Performs a bitwise OR on the values of Vx and Vy
@@ -706,7 +757,7 @@ var Processor = new function()
         let y = (opcode & "0x00F0") >>> 4;
         console.log("V" + x + ": " + this.Registers[x]);
         console.log("V" + y + ": " + this.Registers[y]);
-    }
+    };
     this.AND_XY = function(opcode) // 8xy2 - AND Vx, Vy
     {
         // Performs a bitwise AND on the values of Vx and Vy
@@ -719,7 +770,7 @@ var Processor = new function()
         let y = (opcode & "0x00F0") >>> 4;
         console.log("V" + x + ": " + this.Registers[x]);
         console.log("V" + y + ": " + this.Registers[y]);
-    }
+    };
     this.XOR_XY = function(opcode) // 8xy3 - XOR Vx, Vy
     {
         // Performs a bitwise exclusive OR on the values of Vx and Vy
@@ -732,7 +783,7 @@ var Processor = new function()
         let y = (opcode & "0x00F0") >>> 4;
         console.log("V" + x + ": " + this.Registers[x]);
         console.log("V" + y + ": " + this.Registers[y]);
-    }
+    };
     this.ADD_XY = function(opcode) // 8xy4 - ADD Vx, Vy
     {
         // The values of Vx and Vy are added together.
@@ -748,7 +799,7 @@ var Processor = new function()
         console.log("VF: " + this.Registers[15]);
         console.log("V" + x + ": " + this.Registers[x]);
         console.log("V" + y + ": " + this.Registers[y]);
-    }
+    };
     this.SUB_XY = function(opcode) // 8xy5 - SUB Vx, Vy
     {
         // If Vx > Vy, then VF is set to 1; otherwise 0. Then Vx - Vy, and the results are stored in Vx.
@@ -762,7 +813,7 @@ var Processor = new function()
         console.log("VF: " + this.Registers[15]);
         console.log("V" + x + ": " + this.Registers[x]);
         console.log("V" + y + ": " + this.Registers[y]);
-    }
+    };
     this.SHR_XY = function(opcode) // 8xy6 - SHR Vx {, Vy}
     {
         let x = (opcode & 0x0F00) >>> 8;
@@ -774,7 +825,7 @@ var Processor = new function()
         this.Registers[y] /= 2;                 // Results are stored in Vy.
         console.log("V" + x + ": " + this.Registers[x]);
         console.log("V" + y + ": " + this.Registers[y]);
-    }
+    };
     this.SUBN = function(opcode) // 8xy7 - SUBN Vx, Vy
     {
         // If Vy > Vx, then VF is set to 1; otherwise 0. Then Vy - Vx, and the results are stored in Vx.
@@ -788,7 +839,7 @@ var Processor = new function()
         console.log("VF: " + this.Registers[15]);
         console.log("V" + x + ": " + this.Registers[x]);
         console.log("V" + y + ": " + this.Registers[y]);
-    }
+    };
     this.SHL = function(opcode) // 8xyE - SHL Vx {, Vy}
     {
         let x = (opcode & "0x0F00") >>> 8;
@@ -799,59 +850,119 @@ var Processor = new function()
         this.Registers[y] *= 2;                 // Results are stored in Vy.
         console.log("V" + x + ": " + this.Registers[x]);
         console.log("V" + y + ": " + this.Registers[y]);
-    }
+    };
 
+    this.analyze = function() // Stops the main function and starts the analyze-mode
+    {
+        console.log("Analyze-mode turned on!");
+        var _this = this;
+        var analyze_cycle = setInterval(function()
+        {
+            window.onkeydown = function(event)
+            {
+                if (event.keyCode == 192) // Hit ` to exit analyze-mode.
+                {
+                    analyze_mode = false;
+                    _this.main();
+                    clearInterval(analyze_cycle);
+                }
+                else if (event.keyCode == 113) // Hit F2 to advance to the next opcode.
+                {
+                    if (!_this.pause)
+                    {
+                        //_this.TickTimers();
+                        window.onkeydown = function(event)
+                        {
+                            if (_this.KeyboardBuffer.length == 0)
+                            {
+                                _this.KeyboardBuffer.push(event.keyCode);
+                            }
+                            if (event.keyCode == 192) // Hit ` to enter analyze-mode.
+                            {
+                                analyze_mode = true;
+                                _this.analyze();
+                                clearInterval(main_cycle);
+                                clearInterval(timer_cycle);
+                            }
+                            window.onkeydown = null;
+                        }
+                    }
+
+                    window.onkeyup = function(event)
+                    {
+                        if (_this.KeyboardBuffer.length != 0)
+                        {
+                            if (_this.KeyboardBuffer[0] == event.keyCode)
+                            {
+                                _this.KeyboardBuffer.shift();
+                                if(!_this.pause)
+                                {
+                                    console.log("Removed a key from the keyboard array!");
+                                }
+                            }
+                        }
+                        window.onkeyup = null;
+                    };
+
+                    if (!_this.pause && _this.opcodeDone)
+                    {
+                        _this.fetch();
+                    }
+                }
+                window.onkeydown = null;
+            }
+        }, 2);
+    };
     this.main = function()
     {
         var _this = this;
 
-        setInterval(function()
+        var timer_cycle = setInterval(this.TickTimers.bind(this), 16.6667); // Each timer ticks every 16.6667 ms.
+        var main_cycle = setInterval(function()
         {
-            if (!_this.pause)
+            if (!_this.analyze_mode)
             {
-                _this.TickTimers();
-
-                window.onkeydown = function(event)
+                if (!_this.pause)
                 {
-                    if (_this.KeyboardBuffer.length == 0)
+                    //_this.TickTimers();
+                    window.onkeydown = function(event)
                     {
-                        _this.KeyboardBuffer.push(event.keyCode);
-                    }
-                    window.onkeydown = null;
-                }
-            }
-
-            window.onkeyup = function(event)
-            {
-                if (_this.KeyboardBuffer.length != 0)
-                {
-                    if (_this.KeyboardBuffer[0] == event.keyCode)
-                    {
-                        _this.KeyboardBuffer.shift();
-                        if(!_this.pause)
+                        if (_this.KeyboardBuffer.length == 0)
                         {
-                        	console.log("Removed a key from the keyboard array!");
+                            _this.KeyboardBuffer.push(event.keyCode);
+                        }
+                        if (event.keyCode == 192) // Hit ` to enter analyze-mode.
+                        {
+                            analyze_mode = true;
+                            _this.analyze();
+                            clearInterval(main_cycle);
+                            clearInterval(timer_cycle);
+                        }
+                        window.onkeydown = null;
+                    }
+                }
+
+                window.onkeyup = function(event)
+                {
+                    if (_this.KeyboardBuffer.length != 0)
+                    {
+                        if (_this.KeyboardBuffer[0] == event.keyCode)
+                        {
+                            _this.KeyboardBuffer.shift();
+                            if(!_this.pause)
+                            {
+                                console.log("Removed a key from the keyboard array!");
+                            }
                         }
                     }
-                }
-                window.onkeyup = null;
-            };
+                    window.onkeyup = null;
+                };
 
-           	if (!_this.pause && _this.opcodeDone)
-            {
-                _this.fetch();
-            }
-
-            /*document.addEventListener("keydown", function(event)
-            {
-                _this.KeyboardBuffer.push(event);
-                if (_this.KeyboardBuffer.length == 0);
+                if (!_this.pause && _this.opcodeDone)
                 {
-                    if (event.keyCode == 65)
-                    {
-                    }
+                    _this.fetch();
                 }
-            });*/
-        }, 16.6667); // Each cycle in the emulator lasts for 16.66 ms.
+            }
+        }, 2); // Each emulator cycle happens every 2 ms.
     };
 }

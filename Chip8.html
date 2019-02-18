@@ -7,6 +7,9 @@
         <script src="Fontset.js"></script>
     </head>
     <body>
+        <audio id="Tone">
+            <source src="Electronic_Chime-KevanGC-49593980.mp3" type="audio/mpeg">
+        </audio>
         <div id="display" align="center">
             <h1>Chip 8 Emulator</h1>
             <canvas id="my_canvas" width="640" height="320" >
@@ -17,152 +20,9 @@
             var display_height = Processor.display_height;
             var display = Processor.display;
             var graphics = new graphics_render(document.getElementById('my_canvas'), display_width, display_height);
-            Processor.load("Simple.txt");
+            Processor.load("1P_PONG.ch8");
             Processor.init();
             Processor.main();
-            Processor.execute("0xD655");
-            /*setTimeout(function()
-            {
-                Processor.execute("0xD655");
-            }, 30);
-            setTimeout(function()
-            {
-                Processor.execute("0xF229");
-            }, 60);
-            setTimeout(function()
-            {
-                Processor.execute("0xF015"); // SetDelayTimer
-            }, 100);
-            setTimeout(function()
-            {
-                Processor.execute("0xF118"); // SetSoundTimer
-            }, 200);
-            setTimeout(function()
-            {
-                Processor.execute("0xF11E"); // AddVxIStore
-            }, 300);
-            setTimeout(function()
-            {
-                Processor.execute("0xAB09"); // SetItoNNN
-            }, 400);
-            setTimeout(function()
-            {
-                Processor.execute("0xF355"); // StoreV0VxtoMemory
-            }, 500);
-            setTimeout(function()
-            {
-                Processor.execute("0xAB09"); // SetItoNNN
-            }, 600);
-            setTimeout(function()
-            {
-                Processor.execute("0xFA07") // SetVxtoDT
-
-                Processor.execute("0xF007") // SetVxtoDT
-                Processor.execute("0xF107") // SetVxtoDT
-                Processor.execute("0xF207") // SetVxtoDT
-                Processor.execute("0xF307") // SetVxtoDT
-            }, 700);
-            setTimeout(function()
-            {
-                Processor.execute("0xF365"); // ReadMemoryWriteV0Vx
-            }, 800);*/
-            /*setTimeout(function()
-            {
-                Processor.execute("0xF033"); // StoreBCDRepVx
-            }, 900);*/
-            /*setTimeout(function()
-            {
-                Processor.execute("0xB90A"); // JumptoAddressAddV0
-            }, 900);
-            setTimeout(function()
-            {
-                Processor.execute("0xC3F2"); // RandomANDkkStoretoVx
-            }, 1000);
-            setTimeout(function()
-            {
-                Processor.execute("0x9210"); // SkipIfVxNotVy
-            }, 1100);
-            setTimeout(function()
-            {
-                Processor.execute("0x845E"); // this.SHL()
-            }, 1200);
-            setTimeout(function()
-            {
-                Processor.execute("0x8457"); // this.SUBN()
-            }, 1300);
-            setTimeout(function()
-            {
-                Processor.execute("0x8456"); // this.SHR_XY()
-            }, 1400);
-            setTimeout(function()
-            {
-                Processor.execute("0x8455"); // this.SUB_XY()
-            }, 1500);
-            setTimeout(function()
-            {
-                Processor.execute("0x8454"); // this.ADD_XY()
-            }, 1600);
-            setTimeout(function()
-            {
-                Processor.execute("0x8453"); // this.XOR_XY()
-            }, 1700);
-            setTimeout(function()
-            {
-                Processor.execute("0x8542"); // this.AND_XY()
-            }, 1800);
-            setTimeout(function()
-            {
-                Processor.Registers[4] = 129;
-                Processor.Registers[5] = 126;
-                Processor.execute("0x8451"); // this.OR_1()
-            }, 1900);
-            setTimeout(function()
-            {
-                Processor.execute("0x8450"); // this.LD_2()
-            }, 2000);
-            setTimeout(function()
-            {
-                Processor.execute("0x7559"); // this.ADD()
-            }, 2100);
-            setTimeout(function()
-            {
-                Processor.execute("0x6559"); // this.LD_1()
-            }, 2200);
-            setTimeout(function()
-            {
-                Processor.execute("0x5540"); // this.skip_inst_3()
-            }, 2300);
-            setTimeout(function()
-            {
-                Processor.execute("0x4550"); // this.skip_inst_2()
-            }, 2400);
-            setTimeout(function()
-            {
-                Processor.execute("0x200B"); // this.call_addr()
-            }, 2500);
-            setTimeout(function()
-            {
-                Processor.execute("0x10B0"); // this.jp_addr()
-            }, 2600);
-            setTimeout(function()
-            {
-                Processor.execute("0x20A0"); // this.call_addr()
-            }, 2700);
-            setTimeout(function()
-            {
-                Processor.execute("0x00EE"); // this.stack_return()
-            }, 2800);*/
-
-            /*setTimeout(function()
-            {
-                Processor.execute("0xF20A"); // WaitSetVxtoKeyDown
-            }, 3000);
-            setTimeout(function()
-            {
-                Processor.execute("0xE1A1");
-                console.log("PC: " + Processor.PC);
-                console.log("Registers: " + Processor.Registers); // SkipNextInstruction_KeyUp
-            }, 4000);*/
         </script>
     </body>
 </html>
