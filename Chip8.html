@@ -5,6 +5,7 @@
         <script src="Chip8.js"></script>
         <script src="Graphics.js"></script>
         <script src="Fontset.js"></script>
+        <script src="auto_test.js"></script>
     </head>
     <body>
         <audio id="Tone">
@@ -15,14 +16,27 @@
             <canvas id="my_canvas" width="640" height="320" >
             </canvas>
         </div>
+        <div class="controls" align="center">
+            <button type="button" onclick="load_pong()">Load Pong!</button>
+            <button type="button" onclick="load_test()">Run Automated Testing</button>
+        </div>
         <script>
             var display_width = Processor.display_width;
             var display_height = Processor.display_height;
             var display = Processor.display;
             var graphics = new graphics_render(document.getElementById('my_canvas'), display_width, display_height);
-            Processor.load("1P_PONG.ch8");
-            Processor.init();
-            Processor.main();
+            function load_pong()
+            {
+                Processor.load("1P_PONG.ch8");
+                Processor.init();
+                Processor.main();
+            }
+            function load_test()
+            {
+                Processor.init();
+                Processor.main();
+                main_test();
+            }
         </script>
     </body>
 </html>
