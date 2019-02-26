@@ -51,6 +51,7 @@ var add_errors = function()
 }
 var display_test_result = function()
 {
+    console.log("Total Number of Opcode Tested: " + arr_opcode.length);
     for(i=0; i<arr_opcode.length;i++)
     {
         console.log(errors[i]+" errors found in opcode: "+arr_opcode[i]);
