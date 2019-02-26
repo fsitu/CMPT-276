@@ -5,6 +5,7 @@
         <script src="Chip8.js"></script>
         <script src="Graphics.js"></script>
         <script src="Fontset.js"></script>
+        <script src="updateVisualizer.js"></script>
     </head>
     <body>
         <audio id="Tone">
@@ -12,15 +13,20 @@
         </audio>
         <div id="display" align="center">
             <h1>Chip 8 Emulator</h1>
-            <canvas id="my_canvas" width="640" height="320" >
+            <canvas id="my_canvas" width="640" height="320">
             </canvas>
         </div>
+        <p>REGISTERS:</p>
+        <p id = "V0">V0:</p><p id = "V1">V1:</p><p id = "V2">V2:</p><p id = "V3">V3:</p>
+        <p id = "V4">V4:</p><p id = "V5">V5:</p><p id = "V6">V6:</p><p id = "V7">V7:</p>
+        <p id = "V8">V8:</p><p id = "V9">V9:</p><p id = "V10">VA:</p><p id = "V11">VB:</p>
+        <p id = "V12">VC:</p><p id = "V13">VD:</p><p id = "V14">VE:</p><p id = "V15">VF:</p>
         <script>
             var display_width = Processor.display_width;
             var display_height = Processor.display_height;
             var display = Processor.display;
             var graphics = new graphics_render(document.getElementById('my_canvas'), display_width, display_height);
-            Processor.load("1P_PONG.ch8");
+            Processor.load("Simple");
             Processor.init();
             Processor.main();
         </script>
