@@ -222,7 +222,7 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
                     if (this.Registers[(opcode & "0x0F00") >>> 8] == (opcode & "0x00FF"))
                     {
                         this.PC += 2;
-                        // console.log("Increased PC to: " + Processor.PC);
+                        //console.log("Increased PC to: " + Processor.PC);
                     }
                     break;
                 }
@@ -251,28 +251,28 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
                     if (this.Registers[(opcode & "0x0F00") >>> 8] != this.Registers[(opcode & "0x00F0") >>> 4])
                     {
                         this.PC += 2;
-                        // console.log("Increased PC to: " + Processor.PC);
+                        //console.log("Increased PC to: " + Processor.PC);
                     }
                     break;
                 }
                 else if (i == 40) // SetItoNNN
                 {
                     this.ISpecial = (opcode & "0x0FFF");
-                    // console.log("VI: " + this.ISpecial);
+                    //console.log("VI: " + this.ISpecial);
                     break;
                 }
                 else if (i == 42) // JumptoAddressAddV0
                 {
                     this.PC = (opcode & "0x0FFF") + this.Registers[0];
-                    // console.log("PC: " + this.PC);
+                    //console.log("PC: " + this.PC);
                     break;
                 }
                 else if (i == 44) // RandomANDkkStoretoVx
                 {
                     let rand = Math.floor(Math.random() * ("0x100"));
-                    // console.log("AND-ING...");
+                    //console.log("AND-ING...");
                     this.Registers[(opcode & "0x0F00") >>> 8] = rand & (opcode & "0x00FF");
-                    // console.log("V" + ((opcode & "0x0F00") >>> 8) + ": " + this.Registers[(opcode & "0x0F00") >>> 8]);
+                    //console.log("V" + ((opcode & "0x0F00") >>> 8) + ": " + this.Registers[(opcode & "0x0F00") >>> 8]);
                     break;
                 }
                 else if (i == 46) // DrawGraphics
@@ -438,7 +438,7 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
                         if (i == 52) //SetVxtoDT
                         {
                             this.Registers[(opcode & "0x0F00") >>> 8] = this.delayTimer;
-                            // console.log("V" + ((opcode & "0x0F00") >>> 8) + ": " + this.Registers[(opcode & "0x0F00") >>> 8]);
+                            //console.log("V" + ((opcode & "0x0F00") >>> 8) + ": " + this.Registers[(opcode & "0x0F00") >>> 8]);
                             break;
                         }
                         else if (i == 54) // WaitSetVxtoKeyDown
@@ -501,7 +501,7 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
                         	var Vx = this.Registers[((opcode & "0x0F00") >>> 8)];
                             var VI = this.ISpecial;
                             this.ISpecial = VI + Vx;
-                            // console.log("VI: " + this.ISpecial);
+                            //console.log("VI: " + this.ISpecial);
                             break;
                         }
                         else if (i == 62) // SetSpriteLocation
@@ -526,9 +526,9 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
                                 Vx = this.Registers[((opcode & "0x0F00") >>> 8)];
                                 Vx = Math.floor((Vx % 10) / 1);
                                 this.Memory[this.ISpecial + 2] = Vx;
-                                // console.log("Memory[" + this.ISpecial + "]: " + this.Memory[this.ISpecial]);
-                                // console.log("Memory[" + (this.ISpecial + 1) + "]: " + this.Memory[this.ISpecial + 1]);
-                                // console.log("Memory[" + (this.ISpecial + 2) + "]: " + this.Memory[this.ISpecial + 2]);
+                                //console.log("Memory[" + this.ISpecial + "]: " + this.Memory[this.ISpecial]);
+                                //console.log("Memory[" + (this.ISpecial + 1) + "]: " + this.Memory[this.ISpecial + 1]);
+                                //console.log("Memory[" + (this.ISpecial + 2) + "]: " + this.Memory[this.ISpecial + 2]);
                             }
                             break;
                         }
@@ -543,10 +543,10 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
                                 for (i = 0; i <= (opcode & "0x0F00") >>> 8; i++)
                                 {
                                     this.Memory[this.ISpecial + i] = this.Registers[i];
-                                    // console.log("Memory[" + (this.ISpecial + i) + "]: " + this.Memory[this.ISpecial + i]);
+                                    //console.log("Memory[" + (this.ISpecial + i) + "]: " + this.Memory[this.ISpecial + i]);
                                 }
                                 this.ISpecial += ((opcode & "0x0F00") >>> 8) + 1;
-                                // console.log("VI: " + this.ISpecial);
+                                //console.log("VI: " + this.ISpecial);
                             }
                             break;
                         }
@@ -561,10 +561,10 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
                                 for (i = 0; i <= (opcode & "0x0F00") >>> 8; i++)
                                 {
                                     this.Registers[i] = this.Memory[this.ISpecial + i];
-                                    // console.log("V" + i + ": " + this.Registers[i]);
+                                    //console.log("V" + i + ": " + this.Registers[i]);
                                 }
                                 this.ISpecial += ((opcode & "0x0F00") >>> 8) + 1;
-                                // console.log("VI: " + this.ISpecial);
+                                //console.log("VI: " + this.ISpecial);
                             }
                             break;
                         }
@@ -577,6 +577,7 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
             }
         }
         this.opcodeDone = true;
+        updateVisualizer();
     };
 
     this.TickTimers = function() // The timers will decrease by one at a rate of 60Hz.
@@ -594,7 +595,6 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
             let tone = document.getElementById("Tone");
             tone.play();
         }
-        //console.log("ST: " + this.soundTimer);
     };
 
     this.display_test = function(test_opcode) // DXYN opcode implementation
@@ -624,14 +624,14 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
             }
         }
 
-        // console.log("Display test completed!");
+        //console.log("Display test completed!");
     };
     this.sprite_loc = function(test_opcode) // FX29 implementation
     {
         // Sets I to the location of the sprite for the character in Vx. Characters 0-F (in hexadecimal) are represented by a 4x5 font.
         var sprite_value = this.Registers[(test_opcode & 0x0F00) >>> 8];
         this.ISpecial = 70 + (sprite_value * 5);
-        // console.log("The fontset is: " + sprite_value + ", and the fontset location is: " + this.ISpecial);
+        //console.log("The fontset is: " + sprite_value + ", and the fontset location is: " + this.ISpecial);
     };
     this.clear_display = function() // 00E0 opcode implementation 
     {
@@ -648,8 +648,8 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
         this.Stack[this.Stack_pointer] = this.PC;
         this.Stack_pointer++;
         this.PC = opcode & 0x0FFF;
-        // console.log("SP: " + this.Stack_pointer + " | PC: " + this.PC);
-        // console.log("The stack: " + this.Stack);
+        //console.log("SP: " + this.Stack_pointer + " | PC: " + this.PC);
+        //console.log("The stack: " + this.Stack);
     };
     this.stack_return = function() // 00EE opcode implementation
     {
@@ -661,8 +661,8 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
             this.PC = this.Stack[(this.Stack_pointer - 1)];
             this.Stack[(this.Stack_pointer - 1)] = 0; // Resets the stack element
             this.Stack_pointer--;
-            // console.log("PC: " + this.PC + " | SP:" + this.Stack_pointer);
-            // console.log("The stack: " + this.Stack);
+            //console.log("PC: " + this.PC + " | SP:" + this.Stack_pointer);
+            //console.log("The stack: " + this.Stack);
         }
         else
         {
@@ -689,8 +689,8 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
             this.Stack_pointer++;
             this.PC = opcode & 0x0FFF;
             this.PC -= 2;
-            // console.log("SP: " + this.Stack_pointer + " | PC: " + this.PC);
-            // console.log("The stack: " + this.Stack);
+            //console.log("SP: " + this.Stack_pointer + " | PC: " + this.PC);
+            //console.log("The stack: " + this.Stack);
         }
         else // Gives an error if the stack is full
         {
@@ -724,7 +724,7 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
         // The interpreter puts the value kk into Vx
         this.Registers[(opcode & 0x0F00) >>> 8] = opcode & 0x00FF;
         let x = (opcode & 0x0F00) >>> 8;
-        console.log("V" + x + ": " + this.Registers[x]);
+        //console.log("V" + x + ": " + this.Registers[x]);
     };
     this.ADD = function(opcode) // 7xkk - ADD Vx, byte
     {
@@ -733,7 +733,7 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
         let x = (opcode & 0x0F00) >>> 8;
         let kk = (opcode & 0x00FF);
         this.Registers[x] += kk;
-        console.log("V" + x + ": " + this.Registers[x]);
+        //console.log("V" + x + ": " + this.Registers[x]);
     };
     this.LD_2 = function(opcode) // 8xy0 - LD Vx, Vy
     {
@@ -742,8 +742,8 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
         var reg_y = this.Registers[(opcode & 0x00F0) >>> 4];
         this.Registers[x] = reg_y;
         let y = (opcode & "0x00F0") >>> 4;
-        // console.log("V" + x + ": " + this.Registers[x]);
-        // console.log("V" + y + ": " + this.Registers[y]);
+        //console.log("V" + x + ": " + this.Registers[x]);
+        //console.log("V" + y + ": " + this.Registers[y]);
     };
     this.OR_1 = function(opcode) // 8xy1 - OR Vx, Vy
     {
@@ -755,8 +755,8 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
         this.Registers[(opcode & 0x0F00) >>> 8] = result;
         let x = (opcode & "0x0F00") >>> 8;
         let y = (opcode & "0x00F0") >>> 4;
-        // console.log("V" + x + ": " + this.Registers[x]);
-        // console.log("V" + y + ": " + this.Registers[y]);
+        //console.log("V" + x + ": " + this.Registers[x]);
+        //console.log("V" + y + ": " + this.Registers[y]);
     };
     this.AND_XY = function(opcode) // 8xy2 - AND Vx, Vy
     {
@@ -768,8 +768,8 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
         this.Registers[(opcode & 0x0F00) >>> 8] = result;
         let x = (opcode & "0x0F00") >>> 8;
         let y = (opcode & "0x00F0") >>> 4;
-        // console.log("V" + x + ": " + this.Registers[x]);
-        // console.log("V" + y + ": " + this.Registers[y]);
+        //console.log("V" + x + ": " + this.Registers[x]);
+        //console.log("V" + y + ": " + this.Registers[y]);
     };
     this.XOR_XY = function(opcode) // 8xy3 - XOR Vx, Vy
     {
@@ -781,8 +781,8 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
         this.Registers[(opcode & 0x0F00) >>> 8] = result;
         let x = (opcode & "0x0F00") >>> 8;
         let y = (opcode & "0x00F0") >>> 4;
-        // console.log("V" + x + ": " + this.Registers[x]);
-        // console.log("V" + y + ": " + this.Registers[y]);
+        //console.log("V" + x + ": " + this.Registers[x]);
+        //console.log("V" + y + ": " + this.Registers[y]);
     };
     this.ADD_XY = function(opcode) // 8xy4 - ADD Vx, Vy
     {
@@ -796,9 +796,9 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
         this.Registers[(opcode & 0x0F00) >>> 8] = sum & 0xFF;
         let x = (opcode & "0x0F00") >>> 8;
         let y = (opcode & "0x00F0") >>> 4;
-        // console.log("VF: " + this.Registers[15]);
-        // console.log("V" + x + ": " + this.Registers[x]);
-        // console.log("V" + y + ": " + this.Registers[y]);
+        //console.log("VF: " + this.Registers[15]);
+        //console.log("V" + x + ": " + this.Registers[x]);
+        //console.log("V" + y + ": " + this.Registers[y]);
     };
     this.SUB_XY = function(opcode) // 8xy5 - SUB Vx, Vy
     {
@@ -810,9 +810,9 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
         var sub = reg_x - reg_y;
         this.Registers[0xF] = (reg_x > reg_y);
         this.Registers[(opcode & 0x0F00) >>> 8] = sub;
-        // console.log("VF: " + this.Registers[15]);
-        // console.log("V" + x + ": " + this.Registers[x]);
-        // console.log("V" + y + ": " + this.Registers[y]);
+        //console.log("VF: " + this.Registers[15]);
+        //console.log("V" + x + ": " + this.Registers[x]);
+        //console.log("V" + y + ": " + this.Registers[y]);
     };
     this.SHR_XY = function(opcode) // 8xy6 - SHR Vx {, Vy}
     {
@@ -820,7 +820,7 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
         let y = (opcode & "0x00F0") >>> 4;
         // Stores the least significant bit of Vx in VF and then shifts Vx to the right by 1
         this.Registers[0xF] = this.Registers[x] & 0x1;
-        // console.log("VF: " + this.Registers[15]);
+        //console.log("VF: " + this.Registers[15]);
         this.Registers[y] = this.Registers[x];  // Vx doesn't change.
         this.Registers[y] /= 2;                 // Results are stored in Vy.
     //     console.log("V" + x + ": " + this.Registers[x]);
@@ -836,20 +836,20 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
         var sub = reg_y - reg_x;
         this.Registers[0xF] = (reg_y > reg_x);
         this.Registers[(opcode & 0x0F00) >>> 8] = sub;
-        // console.log("VF: " + this.Registers[15]);
-        // console.log("V" + x + ": " + this.Registers[x]);
-        // console.log("V" + y + ": " + this.Registers[y]);
+        //console.log("VF: " + this.Registers[15]);
+        //console.log("V" + x + ": " + this.Registers[x]);
+        //console.log("V" + y + ": " + this.Registers[y]);
     };
     this.SHL = function(opcode) // 8xyE - SHL Vx {, Vy}
     {
         let x = (opcode & "0x0F00") >>> 8;
         let y = (opcode & "0x00F0") >>> 4;
         this.Registers[15] = ((this.Registers[x] & 0x80) >>> 7);
-        // console.log("VF: " + this.Registers[15]);
+        //console.log("VF: " + this.Registers[15]);
         this.Registers[y] = this.Registers[x];  // Vx doesn't change.
         this.Registers[y] *= 2;                 // Results are stored in Vy.
-        // console.log("V" + x + ": " + this.Registers[x]);
-        // console.log("V" + y + ": " + this.Registers[y]);
+        //console.log("V" + x + ": " + this.Registers[x]);
+        //console.log("V" + y + ": " + this.Registers[y]);
     };
 
     this.analyze = function() // Stops the main function and starts the analyze-mode

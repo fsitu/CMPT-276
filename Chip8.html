@@ -2,11 +2,11 @@
 <html>
     <head>
         <meta charset="utf-8">
+        <script src="auto_test.js"></script>
         <script src="Chip8.js"></script>
         <script src="Graphics.js"></script>
         <script src="Fontset.js"></script>
         <script src="updateVisualizer.js"></script>
-        <script src="auto_test.js"></script>
     </head>
     <body>
         <audio id="Tone">
@@ -20,13 +20,15 @@
         <div class="controls" align="center">
             <button type="button" onclick="load_pong()">Load Pong!</button>
             <button type="button" onclick="load_test()">Run Automated Testing</button>
-            <button type="button" onclick="load_simple()">Load Simple</button>
+            <!--<button type="button" onclick="load_simple()">Load Simple</button>-->
         </div>
-        <p>REGISTERS:</p>
-        <p id = "V0">V0:</p><p id = "V1">V1:</p><p id = "V2">V2:</p><p id = "V3">V3:</p>
-        <p id = "V4">V4:</p><p id = "V5">V5:</p><p id = "V6">V6:</p><p id = "V7">V7:</p>
-        <p id = "V8">V8:</p><p id = "V9">V9:</p><p id = "V10">VA:</p><p id = "V11">VB:</p>
-        <p id = "V12">VC:</p><p id = "V13">VD:</p><p id = "V14">VE:</p><p id = "V15">VF:</p>
+        <div id = "REGISTERS">
+            <p>REGISTERS:</p>
+            <p id = "V0">V0:</p><p id = "V1">V1:</p><p id = "V2">V2:</p><p id = "V3">V3:</p>
+            <p id = "V4">V4:</p><p id = "V5">V5:</p><p id = "V6">V6:</p><p id = "V7">V7:</p>
+            <p id = "V8">V8:</p><p id = "V9">V9:</p><p id = "V10">VA:</p><p id = "V11">VB:</p>
+            <p id = "V12">VC:</p><p id = "V13">VD:</p><p id = "V14">VE:</p><p id = "V15">VF:</p>
+        </div>
         <script>
             var display_width = Processor.display_width;
             var display_height = Processor.display_height;
@@ -34,22 +36,25 @@
             var graphics = new graphics_render(document.getElementById('my_canvas'), display_width, display_height);
             function load_pong()
             {
+                document.getElementById("REGISTERS").style.display = "block";
                 Processor.load("1P_PONG.ch8");
                 Processor.init();
                 Processor.main();
             }
             function load_test()
             {
+                document.getElementById("REGISTERS").style.display = "none";
                 Processor.init();
-                Processor.main();
+                //Processor.main();
                 main_test();
             }
-            function load_simple()
+            /*function load_simple()
             {
+                document.getElementById("REGISTERS").style.display = "block";
                 Processor.load("Simple");
                 Processor.init();
                 Processor.main();
-            }
+            }*/
         </script>
     </body>
 </html>

@@ -36,7 +36,7 @@ var arr_opcode = [
     "FX55",
     "FX65"
 ];
-for(i=0; i<arr_opcode.length;i++)
+for(i=0; i<arr_opcode.length; i++)
 {
     errors[i]=0;
 }
@@ -52,7 +52,7 @@ var add_errors = function()
 var display_test_result = function()
 {
     console.log("Total Number of Opcode Tested: " + arr_opcode.length);
-    for(i=0; i<arr_opcode.length;i++)
+    for(i=0; i<arr_opcode.length; i++)
     {
         console.log(errors[i]+" errors found in opcode: "+arr_opcode[i]);
     }
@@ -63,7 +63,7 @@ var main_test = function()
     DXYN();
     sprite_loc();
     clear_display();
-    exec_subrout(); //buggy
+    exec_subrout(); // Not implemented yet
     stack_return();
     jp_addr();
     call_addr();
@@ -98,12 +98,9 @@ var main_test = function()
     display_test_result();
 }
 
-
-
 var hex_convert = function(N)
 {
     return N.toString(16);
-
 }
 
 var ran_reg = function()
@@ -142,24 +139,21 @@ var sprite_loc = function()
         {
             errors[1]++;
             console.log("Test Failed");
-
         }
     }
     console.log("Test Completed")
- 
 }
 
 var clear_display = function()
 {
     console.log("Testing Opcode: 00E0");
     Processor.execute("0x00E0");
-    for(i=0; i<Processor.display.length;i++)
+    for(i=0; i<Processor.display.length; i++)
     {
         if(Processor.display[i] != 0)
         {
             console.log("Test Failed");
             errors[2]++;
-
         }
     }
     console.log("Test Complete");
@@ -182,13 +176,11 @@ var exec_subrout = function()
         {
             console.log("Test Failed: Invalid Stack Pointer");     
             errors[3]++;
-
         }
         if(Processor.PC != Number(opcode & 0x0FFF))
         {
             console.log("Test Failed: Incorrect PC");
             errors[3]++;
-
         }
     }
     console.log("Test Completed");
@@ -197,7 +189,6 @@ var stack_return = function()
 {
     console.log("Testing Opcode: 00EE");
     Processor.execute("0x00EE");
-
 }
 var jp_addr = function()
 {
@@ -210,8 +201,6 @@ var jp_addr = function()
         {
             console.log("Test Failed: PC");
             errors[5]++;
-
-            
         }
     }
     console.log("Test Completed");
@@ -228,17 +217,14 @@ var call_addr = function()
         {
             console.log("Test Failed: Prev_PC is not on stack");
             errors[6]++;
-
         }
         if(Processor.PC != (opcode & 0x0FFF)-2)
         {
             console.log("Test Failed: Curr_PC is incorrect");
             errors[6]++;
-
         }
     }
     console.log("Test Completed");
-
 }
 var skip_inst_2 = function()
 {
@@ -257,7 +243,6 @@ var skip_inst_2 = function()
             {
                 console.log("Test Failed: Vx == KK, but PC increased");
                 errors[7]++;
-
             }
         }
         else 
@@ -321,7 +306,6 @@ var LD_1 = function()
         {
             console.log("Test Failed");
             errors[9]++;
-
         }
     }
     console.log("Test Completed");
@@ -345,7 +329,6 @@ var ADD = function()
 
                 console.log("Test Failed");
                 errors[10]++;
-
             }
         }
         else
@@ -354,7 +337,6 @@ var ADD = function()
             {
                 console.log("Test Failed");
                 errors[10]++;
-
             }
         }
     }
@@ -376,7 +358,6 @@ var LD_2 = function()
         {
             console.log("Test Failed");
             errors[11]++;
-
         }        
     }
     console.log("Test Completed");
@@ -397,7 +378,6 @@ var OR_1 = function()
         {
             console.log("Test Failed");
             errors[12]++;
-
         }
     }
     console.log("Test Completed");
@@ -418,7 +398,6 @@ var AND_XY = function()
         {
             console.log("Test Failed");
             errors[13]++;
-
         }
     }
     console.log("Test Completed");
@@ -440,7 +419,6 @@ var XOR_XY = function()
         {
             console.log("Test Failed");
             errors[14]++;
-
         }
     }
     console.log("Test Completed");
@@ -463,7 +441,6 @@ var ADD_XY = function()
             {
                 console.log("Test Failed: Overflow Error");
                 errors[15]++;
-
             } 
         }
         else
@@ -495,7 +472,6 @@ var SUB_XY = function()
             {
                 console.log("Test Failed: Overflow Error");
                 errors[16]++;
-
             } 
         }
         else if(Number(reg_x)<Number(reg_y))
@@ -504,7 +480,6 @@ var SUB_XY = function()
             {
                 console.log("Test Failed: Arithmetic(x<y)");
                 errors[16]++;
-
             }
         }
         else
@@ -513,7 +488,6 @@ var SUB_XY = function()
             {
                 console.log("Test Failed: Arithmetic(x=y)");
                 errors[16]++;
-
             }
         }
     }
@@ -539,7 +513,6 @@ var SHR_XY = function()
             {
                 console.log("Test Failed: Invalid VF");
                 errors[17]++;
-
             }
        }
        else if(k_2 ==15)
@@ -548,7 +521,6 @@ var SHR_XY = function()
            {
                console.log("Test Failed: Invalid VF");
                errors[17]++;
-
            }
        }
 
@@ -558,7 +530,6 @@ var SHR_XY = function()
             {
                 console.log("Test Failed: Invalid VY");
                errors[17]++;
-
             }
        }
    }
@@ -582,7 +553,6 @@ var SUBN = function()
             {
                 console.log("Test Failed: Overflow Error");
                 errors[18]++;
-
             } 
         }
         else if(Number(reg_x)>Number(reg_y))
@@ -591,7 +561,6 @@ var SUBN = function()
             {
                 console.log("Test Failed: Arithmetic(x<y)");
                 errors[18]++;
-
             }
         }
         else
@@ -600,7 +569,6 @@ var SUBN = function()
             {
                 console.log("Test Failed: Arithmetic(x=y)");
                 errors[18]++;
-
             }
         }
     }
@@ -622,13 +590,11 @@ var SHL = function()
             {
                 console.log("Testing Failed: Invalid VF");
                 errors[19]++;
-
             }
         }
         if( Processor.Registers[(opcode & 0x0F00)>>>8] >= Processor.Registers[(opcode & 0x00F0)>>>4])
         {
             console.log("x>=y");
-
         }
         else
         {
@@ -637,7 +603,6 @@ var SHL = function()
     
                 console.log("Testing Failed: Invalid VY");
                 errors[19]++;
-
             }
         }
     }
@@ -661,7 +626,6 @@ var skip_inst_1 = function()
             {
                 console.log("Test Failed: Vx == KK, but PC did not increase");
                 errors[20]++;
-
             }
         }
         else 
@@ -670,7 +634,6 @@ var skip_inst_1 = function()
             {
                 console.log("Test Failed: Vx != KK, but PC increased");
                 errors[20]++;
-
             }
         }
     }
@@ -697,7 +660,6 @@ var skip_inst_4 = function()
             {
                 console.log("Test Failed: Vx != KK, but PC did not increase");
                 errors[21]++;
-
             }
         }
         else 
@@ -706,7 +668,6 @@ var skip_inst_4 = function()
             {
                 console.log("Test Failed: Vx == KK, but PC increased");
                 errors[21]++;
-
             }
         }
     }
@@ -727,7 +688,6 @@ var ANNN = function()
         {
             console.log("Test Failed");
             errors[22]++;
-
         }
     }
     console.log("Test Completed");
@@ -748,7 +708,6 @@ var BNNN = function()
         {
             console.log("Test Failed");
             errors[23]++;
-
         }
     }
     console.log("Test Completed");
@@ -769,7 +728,6 @@ var CXNN = function()
         {
             console.log("Test Failed");
             errors[24]++;
-
         }
     }
     console.log("Test Complete");   
@@ -778,17 +736,13 @@ var CXNN = function()
 var skip_inst_5 = function()
 {
     console.log("Testing Opcode: EX9E");
-    //can not be tested automatically because it involves a keypress 
-
-
+    // Cannot be tested automatically because it involves a keypress
 }
 
 var skip_inst_6 = function()
 {
     console.log("Testing Opcode: EXA1");   
-    //can not be tested automatically because it involves a keypress 
-
-
+    // Cannot be tested automatically because it involves a keypress
 }
 
 var VxtoDT = function()
@@ -803,7 +757,6 @@ var VxtoDT = function()
         {
             console.log("Test Failed");
             errors[27]++;
-
         }
     }    
     console.log("Test Completed");
@@ -812,7 +765,7 @@ var VxtoDT = function()
 var WaitSetVxtoKeyDown = function()
 {
     console.log("Testing Opcode: FX0A");
-    //can not be tested automatically because it involves a keypress 
+    // Cannot be tested automatically because it involves a keypress 
 }
 
 var SetDelayTimer_VxTODT = function()
@@ -827,7 +780,6 @@ var SetDelayTimer_VxTODT = function()
         {
             console.log("Test Failed");
             errors[29]++;
-
         }
     }    
     console.log("Test Completed");
@@ -845,7 +797,6 @@ var SetSoundTimer_VxTOST = function()
         {
             console.log("Test Failed");
             errors[30]++;
-
         }
     }    
     console.log("Test Completed");
@@ -864,7 +815,6 @@ var AddVxIStore = function()
         {
             console.log("Test Failed");
             errors[31]++;
-
         }
     }
     console.log("Test Completed");
@@ -887,19 +837,16 @@ var StoreBCDRepVx = function()
         {
             console.log("Test Failed: A");
             errors[32]++;
-
         }
         if(Processor.Memory[Processor.ISpecial+1] != b)
         {
             console.log("Test Failed: B");
             errors[32]++;
-
         }
         if(Processor.Memory[Processor.ISpecial+2] != c)
         {
             console.log("Test Failed: C");
             errors[32]++;
-
         }
     }
     console.log("Test Completed");
@@ -919,7 +866,6 @@ var StoreV0VxtoMemory = function()
         {
             console.log("Test Failed: invalid I");
             errors[33]++;
-
         }
         for(j=0; j <= i; j++)
         {
@@ -927,7 +873,6 @@ var StoreV0VxtoMemory = function()
             {
                 console.log("Test Failed: Invalid Placement in Memory");
                 errors[33]++;
-
             }
         }
     }
@@ -948,7 +893,6 @@ var ReadMemoryWriteV0Vx = function()
         {
             console.log("Test Failed: invalid I");
             errors[34]++;
-
         }
         for(j=0; j <= i; j++)
         {
@@ -956,7 +900,6 @@ var ReadMemoryWriteV0Vx = function()
             {
                 console.log("Test Failed: Invalid Placement in Memory");
                 errors[34]++;
-
             }
         }
     }
