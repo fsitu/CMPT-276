@@ -60,42 +60,42 @@ var display_test_result = function()
 }
 var main_test = function()
 {
-    DXYN();
-    sprite_loc();
-    clear_display();
+    // DXYN();
+    // sprite_loc();
+    // clear_display();
     exec_subrout(); //buggy
-    stack_return();
-    jp_addr();
-    call_addr();
-    skip_inst_1();
-    skip_inst_2();
-    skip_inst_3();
-    skip_inst_4();
-    LD_1();
-    ADD();
-    LD_2();
-    OR_1();
-    AND_XY();
-    XOR_XY();
-    ADD_XY();
-    SUB_XY();
-    SHR_XY();
-    SUBN();
-    SHL();
-    ANNN();
-    BNNN();
-    CXNN();
+    // stack_return();
+    // jp_addr();
+    // call_addr();
+    // skip_inst_1();
+    // skip_inst_2();
+    // skip_inst_3();
+    // skip_inst_4();
+    // LD_1();
+    // ADD();
+    // LD_2();
+    // OR_1();
+    // AND_XY();
+    // XOR_XY();
+    // ADD_XY();
+    // SUB_XY();
+    // SHR_XY();
+    // SUBN();
+    // SHL();
+    // ANNN();
+    // BNNN();
+    // CXNN();
     // skip_inst_5();
     // skip_inst_6();
-    VxtoDT();
+    // VxtoDT();
     // WaitSetVxtoKeyDown();
-    SetDelayTimer_VxTODT();
-    SetSoundTimer_VxTOST();
-    AddVxIStore();
-    StoreBCDRepVx();
-    StoreV0VxtoMemory();
-    ReadMemoryWriteV0Vx();
-    display_test_result();
+    // SetDelayTimer_VxTODT();
+    // SetSoundTimer_VxTOST();
+    // AddVxIStore();
+    // StoreBCDRepVx();
+    // StoreV0VxtoMemory();
+    // ReadMemoryWriteV0Vx();
+    // display_test_result();
 }
 
 
@@ -169,20 +169,22 @@ var exec_subrout = function()
 {
     console.log("Testing Opcode: 0NNN"); //buggy
     console.log(Processor.PC);
-    var curr_sp = Processor.Stack_pointer; 
     for(i=0; i<16; i++)
     {
-
-        var opcode = "0x0" + hex_convert(i) + "00";
+        var curr_sp = Processor.Stack_pointer; 
+        var k_1 = Math.floor((Math.random() * 14) + 1);
+        var k_2 = Math.floor((Math.random() * 14) + 1);
+        var k_3 = Math.floor((Math.random() * 14) + 1);
+        var opcode = "0x0" + hex_convert(k_1) + hex_convert(k_2) + hex_convert(k_3) ;
         Processor.execute(opcode);
-        console.log(Processor.PC);
+        console.log(opcode);
         if(curr_sp+1 != Processor.Stack_pointer)
         {
-            console.log("Test Failed: Incorrect SP");
+            console.log("Test Failed: Invalid Stack Pointer");     
             errors[3]++;
 
         }
-        if(Processor.PC != (opcode & 0x0FFF))
+        if(Processor.PC != Number(opcode & 0x0FFF))
         {
             console.log("Test Failed: Incorrect PC");
             errors[3]++;
@@ -775,16 +777,17 @@ var CXNN = function()
 
 var skip_inst_5 = function()
 {
-    console.log("Testing Opcode: EX9E"); //SOS
-    errors[25]++;
+    console.log("Testing Opcode: EX9E");
+    //can not be tested automatically because it involves a keypress 
 
 
 }
 
 var skip_inst_6 = function()
 {
-    console.log("Testing Opcode: EXA1"); //SOS
-    errors[26]++;
+    console.log("Testing Opcode: EXA1");   
+    //can not be tested automatically because it involves a keypress 
+
 
 }
 
@@ -808,9 +811,8 @@ var VxtoDT = function()
 
 var WaitSetVxtoKeyDown = function()
 {
-    console.log("Testing Opcode: FX0A"); //SOS
-    errors[28]++;
-
+    console.log("Testing Opcode: FX0A");
+    //can not be tested automatically because it involves a keypress 
 }
 
 var SetDelayTimer_VxTODT = function()
