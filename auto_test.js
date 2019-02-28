@@ -60,42 +60,42 @@ var display_test_result = function()
 }
 var main_test = function()
 {
-    // DXYN();
-    // sprite_loc();
-    // clear_display();
+    DXYN();
+    sprite_loc();
+    clear_display();
     exec_subrout(); //buggy
-    // stack_return();
-    // jp_addr();
-    // call_addr();
-    // skip_inst_1();
-    // skip_inst_2();
-    // skip_inst_3();
-    // skip_inst_4();
-    // LD_1();
-    // ADD();
-    // LD_2();
-    // OR_1();
-    // AND_XY();
-    // XOR_XY();
-    // ADD_XY();
-    // SUB_XY();
-    // SHR_XY();
-    // SUBN();
-    // SHL();
-    // ANNN();
-    // BNNN();
-    // CXNN();
-    // skip_inst_5();
-    // skip_inst_6();
-    // VxtoDT();
-    // WaitSetVxtoKeyDown();
-    // SetDelayTimer_VxTODT();
-    // SetSoundTimer_VxTOST();
-    // AddVxIStore();
-    // StoreBCDRepVx();
-    // StoreV0VxtoMemory();
-    // ReadMemoryWriteV0Vx();
-    // display_test_result();
+    stack_return();
+    jp_addr();
+    call_addr();
+    skip_inst_1();
+    skip_inst_2();
+    skip_inst_3();
+    skip_inst_4();
+    LD_1();
+    ADD();
+    LD_2();
+    OR_1();
+    AND_XY();
+    XOR_XY();
+    ADD_XY();
+    SUB_XY();
+    SHR_XY();
+    SUBN();
+    SHL();
+    ANNN();
+    BNNN();
+    CXNN();
+    skip_inst_5();
+    skip_inst_6();
+    VxtoDT();
+    WaitSetVxtoKeyDown();
+    SetDelayTimer_VxTODT();
+    SetSoundTimer_VxTOST();
+    AddVxIStore();
+    StoreBCDRepVx();
+    StoreV0VxtoMemory();
+    ReadMemoryWriteV0Vx();
+    display_test_result();
 }
 
 
