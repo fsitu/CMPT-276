@@ -63,7 +63,7 @@ var main_test = function()
     DXYN();
     sprite_loc();
     clear_display();
-    exec_subrout(); // Not implemented yet
+    //exec_subrout(); // Not implemented yet
     stack_return();
     jp_addr();
     call_addr();
@@ -158,10 +158,9 @@ var clear_display = function()
     }
     console.log("Test Complete");
 }
-
-var exec_subrout = function()
+/*var exec_subrout = function()
 {
-    console.log("Testing Opcode: 0NNN"); //buggy
+    console.log("Testing Opcode: 0NNN");
     console.log(Processor.PC);
     for(i=0; i<16; i++)
     {
@@ -184,7 +183,7 @@ var exec_subrout = function()
         }
     }
     console.log("Test Completed");
-}
+}*/
 var stack_return = function()
 {
     console.log("Testing Opcode: 00EE");
