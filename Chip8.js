@@ -1,8 +1,8 @@
-var Processor = new function() // Should be "Chip-8" instead of "Processor"
+var Processor = new function()
 {
     this.Memory = new Uint8Array(4096);
     // Stores instructions
-    this.Memory[0] = ("0x0000" & "0xF000") >>> 8; // exec_subrout() // BUGGY!
+    this.Memory[0] = ("0x0000" & "0xF000") >>> 8; // exec_subrout(), which isn't implemented
     this.Memory[1] = ("0x0000" & "0x0000");
     this.Memory[2] = ("0x00E0" & "0xFF00") >>> 8; // ClearDisplay
     this.Memory[3] = ("0x00E0" & "0x00FF");
@@ -93,16 +93,33 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
     this.PC;                // Program counter
     this.Stack_pointer;     // The stack pointer to keep track of the length of the stack
 
-    this.analyze_mode = false; // If true, we can stop and execute one opcode at a time
-	this.opcodeDone = true; // Tracks whether the current opcode is done executing
+    this.analyze_mode = false;  // If true, we can stop and execute one opcode at a time
+	this.opcodeDone = true;     // Tracks whether the current opcode is done executing
     this.pause = false;
+
+    //
+    this.currentCPU = 1;
+    this.maxCPU = 4;
+    this.timersSet = false;
+
+    // Declares emulator cycles
+    this.analyze_cycle;
+    this.main_cycle = [];
+    this.timer_cycle;
 
     this.init = function() // Resets variables
     {
+        this.stop(); // Stops all cycles and resets the timers as well
+
         for (let i = 0; i < 16; i++)
         {
             this.Registers[i] = 0;  // Resets the registers
             this.Stack[i] = 0;      // Resets the stack
+        }
+
+        for (let i = 512; i <= 4095; i++)
+        {
+            this.Memory[i] = 0;     // Resets the memory
         }
 
         this.KeyboardBuffer = [];
@@ -112,6 +129,9 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
         this.soundTimer = -1;
         this.PC = 510 // The default value so that the next PC would be 512
         this.Stack_pointer = 0;
+
+        this.currentCPU = 1;
+        this.timersSet = false;
 
         this.analyze_mode = false;
         this.opcodeDone = true; // The default value so that fetch(), which is in main(), can run
@@ -159,6 +179,40 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
         }
         file.send(null);
     };
+    this.loadComp = function(compilation)
+    {
+        var Program = new ArrayBuffer(compilation.length);
+        var program_length = 0; // The length of the Chip-8 program
+        var memIndex = 512;
+
+        for (let i = 0; i < compilation.length; i += 2)
+        {
+            // Each element holds a byte, which is half an opcode.
+            Program[i] = compilation.charCodeAt(i);
+            Program[i + 1] = compilation.charCodeAt(i + 1);
+        }
+
+        for (let i = 0; i < Program.byteLength; i += 2)
+        {
+            let opc1 = Program[i].toString(16);      // This is 8 bits or 1 byte long
+            let opc2 = Program[i + 1].toString(16);  // This is 8 bits or 1 byte long
+            if (opc1.length == 1)
+            {
+                opc1 = "0" + opc1;
+            }
+            if (opc2.length == 1)
+            {
+                opc2 = "0" + opc2;
+            }
+            if (!isNaN(Program[i]) && !isNaN(Program[i + 1])) // Makes sure the next opcode is actually a number
+            {
+                program_length++;
+                this.Memory[memIndex] = "0x" + opc1;
+                this.Memory[memIndex + 1] = "0x" + opc2;
+                memIndex += 2;
+            }
+        }
+    };
 
     this.fetch = function() // Fetches the next opcode from the program stored in the memory
     {
@@ -176,7 +230,7 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
         }
         else
         {
-            let opc1 = this.Memory[this.PC].toString(16)
+            let opc1 = this.Memory[this.PC].toString(16);
             let opc2 = this.Memory[this.PC + 1].toString(16);
             if (opc1.length == 1)
             {
@@ -486,12 +540,12 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
                             };
                             break;
                         }
-                        else if (i == 56) //SetDelayTimer_VxTODT
+                        else if (i == 56) // SetDelayTimer_VxTODT
                         {
                             this.delayTimer = this.Registers[((opcode & "0x0F00") >>> 8)];
                             break;
                         }
-                        else if (i == 58) //SetSoundTimer_VxTOST
+                        else if (i == 58) // SetSoundTimer_VxTOST
                         {
                             this.soundTimer = this.Registers[((opcode & "0x0F00") >>> 8)];
                             break;
@@ -501,7 +555,6 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
                         	var Vx = this.Registers[((opcode & "0x0F00") >>> 8)];
                             var VI = this.ISpecial;
                             this.ISpecial = VI + Vx;
-                            //console.log("VI: " + this.ISpecial);
                             break;
                         }
                         else if (i == 62) // SetSpriteLocation
@@ -577,7 +630,6 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
             }
         }
         this.opcodeDone = true;
-        updateVisualizer();
     };
 
     this.TickTimers = function() // The timers will decrease by one at a rate of 60Hz.
@@ -852,37 +904,45 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
         //console.log("V" + y + ": " + this.Registers[y]);
     };
 
+    this.stop = function() // Stops all cycles
+    {
+        clearInterval(this.analyze_cycle);
+        for (let i = 0; i < this.maxCPU; i++)
+        {
+            clearInterval(this.main_cycle[i]);
+        }
+        clearInterval(this.timer_cycle);
+
+        this.currentCPU = 1; // Resets the current number of running CPU's
+        this.timersSet = false;
+        /*// Also resets the timers as a bonus
+        this.delayTimer = 0;
+        this.soundTimer = -1;*/
+    };
     this.analyze = function() // Stops the main function and starts the analyze-mode
     {
         console.log("Analyze-mode turned on!");
         var _this = this;
-        var analyze_cycle = setInterval(function()
+        var timer_cycle = 0;
+        this.analyze_cycle = setInterval(function()
         {
             window.onkeydown = function(event)
             {
                 if (event.keyCode == 192) // Hit ` to exit analyze-mode.
                 {
-                    analyze_mode = false;
+                    _this.stop(); // Stops all cycles
+                    _this.analyze_mode = false;
                     _this.main();
-                    clearInterval(analyze_cycle);
                 }
                 else if (event.keyCode == 113) // Hit F2 to advance to the next opcode.
                 {
                     if (!_this.pause)
                     {
-                        //_this.TickTimers();
                         window.onkeydown = function(event)
                         {
                             if (_this.KeyboardBuffer.length == 0)
                             {
                                 _this.KeyboardBuffer.push(event.keyCode);
-                            }
-                            if (event.keyCode == 192) // Hit ` to enter analyze-mode.
-                            {
-                                analyze_mode = true;
-                                _this.analyze();
-                                clearInterval(main_cycle);
-                                clearInterval(timer_cycle);
                             }
                             window.onkeydown = null;
                         }
@@ -908,7 +968,15 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
                     {
                         _this.fetch();
                     }
+
+                    timer_cycle++;
+                    if (timer_cycle >= 8)
+                    {
+                        _this.TickTimers();
+                        timer_cycle = 0;
+                    }
                 }
+                updateVisualizer();
                 window.onkeydown = null;
             }
         }, 2);
@@ -917,14 +985,17 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
     {
         var _this = this;
 
-        var timer_cycle = setInterval(this.TickTimers.bind(this), 16.6667); // Each timer ticks every 16.6667 ms.
-        var main_cycle = setInterval(function()
+        if (!this.timersSet) // Makes sure only one timer cycle runs
+        {
+            this.timersSet = true;
+            this.timer_cycle = setInterval(this.TickTimers.bind(this), 16.6667); // Each timer ticks every 16.6667 ms.
+        }
+        this.main_cycle[this.currentCPU - 1] = setInterval(function()
         {
             if (!_this.analyze_mode)
             {
                 if (!_this.pause)
                 {
-                    //_this.TickTimers();
                     window.onkeydown = function(event)
                     {
                         if (_this.KeyboardBuffer.length == 0)
@@ -933,10 +1004,9 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
                         }
                         if (event.keyCode == 192) // Hit ` to enter analyze-mode.
                         {
-                            analyze_mode = true;
+                            _this.stop(); // Stops all cycles
+                            _this.analyze_mode = true;
                             _this.analyze();
-                            clearInterval(main_cycle);
-                            clearInterval(timer_cycle);
                         }
                         window.onkeydown = null;
                     }
@@ -963,6 +1033,26 @@ var Processor = new function() // Should be "Chip-8" instead of "Processor"
                     _this.fetch();
                 }
             }
+            updateVisualizer();
         }, 2); // Each emulator cycle happens every 2 ms.
+    };
+    this.speed_up = function() // This should not run if the Emulator has stopped or automated testing is running
+    {
+        if (this.pause || this.analyze_mode)
+        {
+            console.log("ERROR! ERROR! Emulator cannot speed up. It is paused.")
+        }
+        else
+        {
+            if (this.currentCPU >= this.maxCPU)
+            {
+                console.log("ERROR! ERROR! Maximum speed reached!")
+            }
+            else
+            {
+                this.currentCPU++;
+                this.main();
+            }
+        }
     };
 }
