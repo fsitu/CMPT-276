@@ -1,0 +1,194 @@
+
+draw brick row:
+               ld  I,brick
+               drw va,vb,1
+               add va,4
+               se  va,64
+               jp  draw brick row
+
+               add vb,2
+               se  vb.#12
+
+               jp draw bricks
+               ld  vc,32
+               ld  vd,31
+               ld  I,balls
+               drw v0,v1,1
+               add v0,8
+               ld  i,balls
+               drw v0,v1,1
+
+play game
+               ld  v0,#40
+               ld  dt,v0
+
+wait           
+               ld  v0,dt
+               se  v0,0
+               jp, wait
+
+               rnd v6 #0f
+               ld  v7,30
+               ld  v8,1
+               ld  v9,#ff
+               ld  I,ball
+               drw v6,v7,1
+
+main loop
+               ld i,paddle
+               drw vc,vd 1
+             
+               ld  v0,04
+               sknp v0
+               add vc,#fe
+
+               ld  v0,#3f
+               add vc,v0
+               drw vc,vd,1
+ 
+               ld  I,ball
+               drw v6,v7,1
+               add v6,v8
+               add v7.v9
+          
+               ld  v0,63
+               and v6,v0
+            
+               ld  v7,v1
+               and v7,v1
+ 
+               sne v7,31
+               jp bottom
+
+
+check paddle
+               sne v6,0
+               ld  v8,1
+
+               sne v6,63
+               ld  v8 #ff
+                
+               sne v7,0
+               ld  v9,1
+                
+               drw v6,v7,1
+               se  vf,1
+               jp  brick untouch
+
+               sne v7,31
+               jp  brick untouch
+    
+               ld  v0,5
+               suv v0,v7
+               se  vf, 0
+               jp  brick untouch
+
+
+               ld  v0,1
+               ld  st,v0
+            
+               ld  v0,v6
+               ld  v1,#fc
+               and v0,v1
+               
+               ld  I,brick
+               drw v0,v7,1
+               ld  v0,#fe
+               xor v9,v0
+ 
+               call drawscore
+               add v5,1
+               call drawscore
+        
+               sne v5,96
+               jp  over
+
+
+brick untouch 
+               jp  mainloop
+
+
+bottom 
+               ld  v9,#ff
+               ld  v0,v6
+               sub v0,vc
+               se  vf,1
+               jp  ball lost
+               
+               ld  v1,2
+               sub v0,v1
+               se  vf,1
+               jp  go left
+               sub v0,v1
+               se  vf,1
+               jp  paddle beep
+               sub v0,v1
+               se  vf,1
+               jp  go right
+
+ball lost
+               ld  v0,32
+               ld  st,v0
+    
+               ld  i, ball
+               add ve,#ff
+               ld  v0,ve
+               
+               add v0,v0
+               ld  v1,0
+               drw v0,v1,1
+               se, ve,0
+               jp  play game
+
+over             
+               jp over
+
+
+               
+                
+go left 
+               add v8,#ff
+               sne v8,#fe
+               ld  v8,#ff
+               jp  paddle beep
+
+go right
+               add v8,1
+               sne v8,2
+               ld  v8,1
+
+paddle beep
+               ld  v0,4
+               ld  st,v0
+               ld  v9,#ff
+               jp  check paddle
+ 
+draw score
+               ld  I,score
+               ld  b,v5
+               ld  v2,[I]
+               ld  f,v1
+               ld  v3,55
+               ld  v4,0
+               drw v3,v4,5
+               add v3,5
+               ld  f,v2
+               drw v3,v4,5
+               return
+
+brick
+               dw #f000
+
+ball
+               dw #8000
+
+paddle
+               dw #fc00
+
+balls
+               dw #aa00
+
+sore
+               dw #0000
+               dw #0000
+          
