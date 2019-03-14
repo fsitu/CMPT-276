@@ -1,5 +1,32 @@
 
-draw brick row:
+temp		var	v0
+temp2		var	v1
+temp3		var	v2
+
+
+;game variables
+X coordinate            var     v3
+Y coordinate 	          var	    v4
+brick hit	              var	    v5
+ball X coordinate	      var 	  v6
+ball Y coordinate	      var	    v7
+ball X direction 	      var	    v8
+ball Y direction	      var	    v9
+X  generating bricks	  var	    va
+Y  generating bricks	  var	    vb
+paddle X coordinate	    var	    vc
+paddle Y coordinate     var     vd
+ball counter            var     ve
+collision detect        var     vf
+
+
+option binary
+               ld    ve,3; 3 ball
+               ld    v5,0
+               ld    vb,6
+
+draw bricks:
+               ld    va,0draw brick row:
                ld  I,brick
                drw va,vb,1
                add va,4
@@ -18,9 +45,6 @@ draw brick row:
                ld  i,balls
                drw v0,v1,1
 
-play game
-               ld  v0,#40
-               ld  dt,v0
 
 wait           
                ld  v0,dt
@@ -175,6 +199,9 @@ draw score
                ld  f,v2
                drw v3,v4,5
                return
+play game
+               ld  v0,#40
+               ld  dt,v0
 
 brick
                dw #f000
