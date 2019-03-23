@@ -60,6 +60,7 @@ var display_test_result = function()
 }
 var main_test = function()
 {
+    //Processor.timer_cycle = setInterval(Processor.TickTimers.bind(Processor), 16.6667); // Each timer ticks every 16.6667 ms.
     DXYN();
     sprite_loc();
     clear_display();

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    <script src="assemble.js"></script>
+    <script src="TextEditorPlugIn.js"></script>
+
+    <style>
+      body {font-family: "Times New Roman", Georgia, Serif;}
+      h2
+      {
+        font-family: "Playfair Display";
+        letter-spacing: 5px;
+        color:black;
+      }
+    </style>
+</head>
+
+<body>
+    <div class="w3-container w3-padding-64">
+      <h2>Text Plugin</h2>
+      <p class="w3-text-blue-grey w3-large"><b>Description of an plugin. TBD</b></p>
+
+      <!--<form action="/action_page.php" target="_blank">-->
+          <!--<input class="w3-input w3-padding-16" type="text" placeholder="Type your code here" id="key1" required name="Message">-->
+          <textarea id="key1"></textarea>
+          <button class="w3-button w3-light-grey w3-section" type="submit" onclick="ModifyCode()"; >Process</button>
+      <!--</form>-->
+
+      <textarea id="key2" style="overflow-y: auto; resize: none; visibility:hidden" ></textarea>
+</body>
+</html>
