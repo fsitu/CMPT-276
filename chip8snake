@@ -1,119 +1,118 @@
-;temporary variables distributed register 0-4
 
-temp		var	v0
-temp2		var	v1
-temp3		var	v2
-temp4		var	v3
+define temp v0
+define temp2 v1
+define temp3 v2
+define temp4 v3
 
-;game variables
-head_x 		var	v4
-head_y		var	v5
-dire		var 	v6
-score		var	v7
-food_x 		var	v8
-food_y		var	v9
-head		var	va
-tail		var	vb
-find_food	var	vc
+define head_x 	v4
+define head_y	v5
+define dire v6
+define score v7
+define food_x v8
+define food_y v9
+define head va
+define tail vb
+define find_food vc
+define tail_x vd
+define tail_y ve
 
-;define constants
-up		equ	0
-rt		equ	4
-dw		equ	8
-lft		equ 	12
-	
 
-game_start	cls			;initialize	
+game_start:
+                ld      temp3,  8
 		ld	head_x,	22
 		ld	head_y, 16
 		ld 	tail_x,	20
 		ld	tail_y,	16
-		ld	dire,	rt
-		drw	tail_x,	tail_y,	3
+		ld	dire,	4
+		ld      temp,   %11100000
+                ld      I   ,   #C9F
+                ld      [I] ,   v0
+                drw     tail_x,tail_y,1
 		
-		;intialize snake x
-		ld	I, 	0xDA0
+		
+		ld	I, 	#DA0
 		ld 	v0, 	tail_x
 		ld	v1,	21
 		ld	v2,	22
 		ld	[I],	v2
 
-		;initialize snake y
-		ld	I,	0xCA0
+		
+		ld	I,	#CA0
 		ld	v0,	16
 		ld	v1,	16
 		ld	v2,	16
 		ld	[I],	v2
 		
-		;initialize snake in memory space
+		
 		ld	tail,	0
 		ld	head,	2
 		ld	find_food,	0
 		ld 	score,	0
 
-;main loop
-loop		call	key_input
+loop:	
+                call	key_input
 		call	move
 		call	check_sur
 		call	update_snake
-		ld	find_food,	0	;set find_food flag back to 0
+		ld	find_food,	0	
 		jp	loop
 		
-;functions--detect keyboard input
 
-key_input	;load keyboard value of 'up' into temp(v0), judge if it is pressed. If pressed, change dire
-		ld	temp2,	keyboard_up
+
+key_input:	
+		ld	temp2,	0
 		sknp	temp2
-		ld	temp,	up
+		ld	temp,	0
 		
-		ld	temp2,	keyboard_down
+		ld	temp2,	8
 		sknp	temp2
-		ld	temp,	dw
+		ld	temp,	8
 
-		ld	temp2,	keyboard_left
+		ld	temp2,	12
 		sknp 	temp2
-		ld 	temp,	lft
+		ld 	temp,	12
 		
-		ld 	temp2, 	keyboard_right
+		ld 	temp2, 	4
 		sknp	temp2
-		ld	temp,	rt
+		ld	temp,	4
 		
-		;let temp+8 to check if it is a reverse to the moving direction, use 'and' to cycle it within 0-16, if it is not a reverse, make it as the new 'direction'
+		
 		add	temp, 	8
 		ld 	temp2, 	15
 		and	temp,	temp2
 		se	temp,	dire
-		sub 	temp, 	8
+		sub 	temp, 	temp3
 		ld	dire,	temp
 
 		ret	
 
-move		;let head of snake move to next position
-		sne	dire,	up
+move:		
+                ld      temp4,  1
+		sne	dire,	0
 		add	head_y,	1
 
-		sne	dire,	dw
-		sub	head_y,	1
+		sne	dire,	8
+		sub	head_y,	temp4
 		
-		sne 	dire,	lft
-		sub	head_x,	1
+		sne 	dire,	12
+		sub	head_x,	temp4
 		
-		sne	dire, 	rt
+		sne	dire, 	4
 		add	head_x,	1
 		
 
-check_sur	;check if the new position of head cause the end of game
-		sne	head_x,	#ff		;#ff is -1
+check_sur:	
+		sne	head_x,	#ff		
 		jp	game_over		
-		sne 	head_x,	64		;the x-bound is currently set to [0,63]	(all screen)
+		sne 	head_x,	64		
 		jp	game_over
 		sne	head_y,	#ff
 		jp	game_over
-		sne	head_y,	32		;the y-bound is currently set to [0,31] (all screen)
+		sne	head_y,	32		
 		jp	game_over
 		
 		
-		drw	head_x,	head_y,	1	;judge collision step
+		drw	20,	16,	1	
 		se	vf,	1		
 		ret
 		
@@ -126,16 +125,15 @@ check_sur	;check if the new position of head cause the end of game
 		ld	temp,	2
 		ld	st,	temp
 		jp	new_food
-		drw	head_x,	head_y,	1	;draw head again if it clears the food at judge collision step
-		ld	find_food,	1	;change flag of find_food to 1
+		drw	head_x,	head_y,	1	
+		ld	find_food,	1	
 		ret
 
-new_food	;create new food
-		loop
-		rnd	food_x,	0x3F
-		rnd	food_y,	0x1F
+new_food:	
+		rnd	food_x,	#3F
+		rnd	food_y,	#1F
 
-		ld	temp,	63		;check if spawned new food inside the map, respawn it if not. Note that current boundary is the whole screen [0,63], and [0,31]
+		ld	temp,	63		
 		sub	temp,	food_x
 		sne	vf,	1
 		jp	new_food
@@ -151,33 +149,34 @@ new_food	;create new food
 		jp	new_food
 		ret
 
-update_snake	;write new head in memory
+update_snake:	
 		add	head,	1
-		ld	I,	0xDA0
+		ld	I,	#DA0
 		add	I,	head
 		ld	temp,	head_x
 		ld	[I],	v0
-		ld	I,	0xCA0
+		ld	I,	#CA0
 		add	I,	head
 		ld	temp,	head_y
 		ld	[I],	v0
 
-		;erase tail
-		se	find_food,	1	;do nothing to tail if find_food flag is set 1
+
+		se	find_food,	1	
 		ret
-		ld	I,	0xDA0		;erase tail if find_food flag is 0
+		ld	I,	#DA0		
 		add	I,	tail
 		ld 	v0,	[I]
 		ld	v1,	v0
-		ld	I,	0xCA0
+		ld	I,	#CA0
 		add	I,	tail
 		ld	v0,	[I]
 		drw	v1,	v0,	1
 		add	tail,	1
 
-game_over	;end game
+game_over:	
 		ld	v0,	15
 		ld	st,	v0
 		
 		jp game_start
+
 
