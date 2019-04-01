@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" type="text/css" href="Main.css">
+        <script src="auto_test.js"></script>
+        <script src="Chip8.js"></script>
+        <script src="compile.js"></script>
+        <script src="Graphics.js"></script>
+        <script src="Fontset.js"></script>
+        <script src="updateVisualizer.js"></script>
+        <script src="game_sprite.js"></script>
+    </head>
+    <body>
+        <audio id="Tone">
+            <source src="Electronic_Chime-KevanGC-49593980.mp3" type="audio/mpeg">
+        </audio>
+
+        <div class="borderless" align="center">
+            <h1>Chip 8 Emulator</h1>
+            <select id="GAMES">
+                <option value="1P_PONG.ch8">1-P PONG</option>
+                <option value="Brick.ch8">BRICK</option>
+            </select>
+        </div>
+
+<div id="KEYS_DISPLAY" class="borderless" style="align-items: center; display: none;">
+        <div class="borderless" id="display" align="center">
+            <canvas id="my_canvas" width="640" height="320" ></canvas>
+        </div>
+
+        <div id="keyboardButtons">
+            <div>
+                <button id="KEY1" onmousedown="press1()" onmouseup="unpress()" type="button">1</button>
+                <button id="KEY2" onmousedown="press2()" onmouseup="unpress()" type="button">2</button>
+                <button id="KEY3" onmousedown="press3()" onmouseup="unpress()" type="button">3</button>
+                <button id="KEYC" onmousedown="pressC()" onmouseup="unpress()" type="button">C</button>
+            </div>
+            <div>
+                <button id="KEY4" onmousedown="press4()" onmouseup="unpress()" type="button">4</button>
+                <button id="KEY5" onmousedown="press5()" onmouseup="unpress()" type="button">5</button>
+                <button id="KEY6" onmousedown="press6()" onmouseup="unpress()" type="button">6</button>
+                <button id="KEYD" onmousedown="pressD()" onmouseup="unpress()" type="button">D</button>
+            </div>
+            <div>
+                <button id="KEY7" onmousedown="press7()" onmouseup="unpress()" type="button">7</button>
+                <button id="KEY8" onmousedown="press8()" onmouseup="unpress()" type="button">8</button>
+                <button id="KEY9" onmousedown="press9()" onmouseup="unpress()" type="button">9</button>
+                <button id="KEYE" onmousedown="pressE()" onmouseup="unpress()" type="button">E</button>
+            </div>
+            <div>
+                <button id="KEYA" onmousedown="pressA()" onmouseup="unpress()" type="button">A</button>
+                <button id="KEY0" onmousedown="press0()" onmouseup="unpress()" type="button">0</button>
+                <button id="KEYB" onmousedown="pressB()" onmouseup="unpress()" type="button">B</button>
+                <button id="KEYF" onmousedown="pressF()" onmouseup="unpress()" type="button">F</button>
+            </div>
+        </div>
+</div>
+
+        <div class="borderless" id="controls" align="center">
+            <button id="loadButton" type="button" onclick="load_pong()">Load and Play!</button>
+            <button id="testButton" type="button" onclick="load_test()">Run Auto-Test!</button>
+            <button id="compileButton" type="button" onclick="compile_run()">Compile and Run</button>
+            <button id="pauseButton" onclick="pauseEmulator()" type="button" hidden>Pause</button>
+            <button id="fasterButton" type="button" onclick="run_faster()">Run Faster!</button>
+            <button id="resumeButton" onclick="resumeEmulator()" type="button" hidden>Resume!</button>
+            <button id="nextButton" onclick="next()" type="button" hidden>></button>
+        </div>
+
+        <div id="REGISTERS" style="float: left; padding-left: 1em; padding-right: 1em;">
+            <p style="font-weight: 800;" align="center">REGISTERS:</p>
+            <p id="V0">V0:</p><p id="V1">V1:</p><p id="V2">V2:</p><p id="V3">V3:</p>
+            <p id="V4">V4:</p><p id="V5">V5:</p><p id="V6">V6:</p><p id="V7">V7:</p>
+            <p id="V8">V8:</p><p id="V9">V9:</p><p id="V10">VA:</p><p id="V11">VB:</p>
+            <p id="V12">VC:</p><p id="V13">VD:</p><p id="V14">VE:</p><p id="V15">VF:</p>
+        </div>
+
+        <div id="memParent" class="justified" style="float: right; height: 36.950em;">
+            <p id="memLabel" style="align-self: center; font-weight: 800;">MEMORY:</p>
+            <textarea id="MEMORY" readonly></textarea></div>
+
+        <div id="editParent" class="justified"><textarea id="EDITOR" placeholder="00E0
+600A" rows="16" wrap="off"></textarea></div>
+
+        <div id="viewParent" class="justified" style="border: 0;">
+            <p id="VIEWER" style="align-self: center;" hidden></p>
+        </div>
+
+        <div id="miscParent" class="justified" style="justify-content: left; padding-left: 2em;">
+            <pre id="MISC"><b>PC:
+
+VI:
+
+Delay Timer:
+
+Sound Timer:</b></pre>
+        </div>
+
+        <!--<div class="justified">
+            <p id="ERRORS">The ERROR Log:</p>
+        </div>-->
+
+        <script>
+            var display_width = Processor.display_width;
+            var display_height = Processor.display_height;
+            var display = Processor.display;
+            var graphics = new graphics_render(document.getElementById('my_canvas'), display_width, display_height);
+
+            function load_pong()
+            {
+                document.getElementById("KEYS_DISPLAY").style.display = "flex";
+                document.getElementById("MEMORY").style.display = "flex";
+                document.getElementById("REGISTERS").style.display = "block";
+                document.getElementById("pauseButton").hidden = false;
+
+                Processor.init();
+                Processor.load(document.getElementById("GAMES").value);
+                Processor.main();
+            };
+            function load_test()
+            {
+                if (document.getElementById("testButton").innerHTML == "Run Auto-Test!")
+                {
+                    document.getElementById("KEYS_DISPLAY").style.display = "none";
+                    document.getElementById("MEMORY").style.display = "none";
+                    document.getElementById("memParent").style.border = "none";
+                    document.getElementById("miscParent").style.border = "none";
+                    document.getElementById("REGISTERS").style.display = "none";
+
+                    document.getElementById("loadButton").hidden = true;
+                    document.getElementById("compileButton").hidden = true;
+                    document.getElementById("fasterButton").hidden = true;
+                    document.getElementById("memLabel").hidden = true;
+                    document.getElementById("MISC").hidden = true;
+                    document.getElementById("pauseButton").hidden = true;
+                    document.getElementById("testButton").innerHTML = "Back";
+
+                    Processor.init();
+                    main_test();
+                }
+                else
+                {
+                    document.getElementById("MEMORY").style.display = "flex";
+                    document.getElementById("REGISTERS").style.display = "block";
+
+                    document.getElementById("loadButton").hidden = false;
+                    document.getElementById("compileButton").hidden = false;
+                    document.getElementById("fasterButton").hidden = false;
+                    document.getElementById("memLabel").hidden = false;
+                    document.getElementById("memParent").style.border = "0.25em solid #888";
+                    document.getElementById("MISC").hidden = false;
+                    document.getElementById("miscParent").style.border = "0.25em solid #888";
+                    //document.getElementById("pauseButton").hidden = false;
+                    document.getElementById("testButton").innerHTML = "Run Auto-Test!";
+                }
+            };
+            function compile_run()
+            {
+                document.getElementById("KEYS_DISPLAY").style.display = "flex";
+                document.getElementById("MEMORY").style.display = "flex";
+                document.getElementById("REGISTERS").style.display = "block";
+                document.getElementById("pauseButton").hidden = false;
+
+                compile();
+            };
+            function run_faster()
+            {
+                Processor.speed_up();
+            };
+            function next()
+            {
+                Processor.advance();
+            };
+            function pauseEmulator()
+            {
+                Processor.pauseEmu();
+            };
+            function resumeEmulator()
+            {
+                Processor.resumeEmu();
+            };
+
+            function press1()
+            {
+                Processor.pressKey(49);
+            };
+            function press2()
+            {
+                Processor.pressKey(50);
+            };
+            function press3()
+            {
+                Processor.pressKey(51);
+            };
+            function pressC()
+            {
+                Processor.pressKey(52);
+            };
+
+            function press4()
+            {
+                Processor.pressKey(81);
+            };
+            function press5()
+            {
+                Processor.pressKey(87);
+            };
+            function press6()
+            {
+                Processor.pressKey(69);
+            };
+            function pressD()
+            {
+                Processor.pressKey(82);
+            };
+
+            function press7()
+            {
+                Processor.pressKey(65);
+            };
+            function press8()
+            {
+                Processor.pressKey(83);
+            };
+            function press9()
+            {
+                Processor.pressKey(68);
+            };
+            function pressE()
+            {
+                Processor.pressKey(70);
+            };
+
+            function pressA()
+            {
+                Processor.pressKey(90);
+            };
+            function press0()
+            {
+                Processor.pressKey(88);
+            };
+            function pressB()
+            {
+                Processor.pressKey(67);
+            };
+            function pressF()
+            {
+                Processor.pressKey(86);
+            };
+
+            function unpress()
+            {
+                Processor.unpressKey();
+            };
+        </script>
+    </body>
+</html>
