@@ -1,183 +1,255 @@
-;temporary variables distributed register 0-4
 
-temp		var	v0
-temp2		var	v1
-temp3		var	v2
-temp4		var	v3
+define temp v0
+define temp2 v1
+define temp3 v2
+define temp4 v3
+define head_x   v4
+define head_y   v5
+define dire    v6
+define head    v7
+define tail    v8
+define food_x  v9
+define food_y  va
+define find_food vb
+define score    vc
+define lvl   vd
 
-;game variables
-head_x 		var	v4
-head_y		var	v5
-dire		var 	v6
-score		var	v7
-food_x 		var	v8
-food_y		var	v9
-head		var	va
-tail		var	vb
-find_food	var	vc
+    ld  lvl, 1
+    
+game_start:
+    cls
+    call    draw_bound
+    ld  score,  0
+    ld  head_x, 22
+    ld  head_y, 16
+    ld  dire,   4
+    ld  I,  startsnake
+    ld  v0, 20
+    ld  v1, 16
+    drw v0, v1, 1
 
-;define constants
-up		equ	0
-rt		equ	4
-dw		equ	8
-lft		equ 	12
-	
+    ld  I,  L
+    ld  v0, 47
+    ld  v1, 6
+    drw v0, v1, 5
+    ld  I,  V
+    ld  v0, 53
+    drw v0, v1, 5
 
-game_start	cls			;initialize	
-		ld	head_x,	22
-		ld	head_y, 16
-		ld 	tail_x,	20
-		ld	tail_y,	16
-		ld	dire,	rt
-		drw	tail_x,	tail_y,	3
-		
-		;intialize snake x
-		ld	I, 	0xDA0
-		ld 	v0, 	tail_x
-		ld	v1,	21
-		ld	v2,	22
-		ld	[I],	v2
+    ld  v0, 53
+    ld  v1, 12
+    ld  I,  lvlN
+    ld  v2,  0
+    call draw_lvl_loop
+    drw v0, v1, 5
 
-		;initialize snake y
-		ld	I,	0xCA0
-		ld	v0,	16
-		ld	v1,	16
-		ld	v2,	16
-		ld	[I],	v2
-		
-		;initialize snake in memory space
-		ld	tail,	0
-		ld	head,	2
-		ld	find_food,	0
-		ld 	score,	0
+    ld  tail,   0
+    ld  head,   4
+    call    new_food
+    call  loop
+    jp  game_start
 
-;main loop
-loop		call	key_input
-		call	move
-		call	check_sur
-		call	update_snake
-		ld	find_food,	0	;set find_food flag back to 0
-		jp	loop
-		
-;functions--detect keyboard input
+loop:
+    call    key_input
+    call    move
+    call    check_sur
+    call    update_snake
+    ld  find_food,  0
+    call    delay
+    sne lvl, 5
+    jp  loop
+    se score,  100
+    jp  loop
 
-key_input	;load keyboard value of 'up' into temp(v0), judge if it is pressed. If pressed, change dire
-		ld	temp2,	keyboard_up
-		sknp	temp2
-		ld	temp,	up
-		
-		ld	temp2,	keyboard_down
-		sknp	temp2
-		ld	temp,	dw
+    add lvl, 1
+    cls
+    ret
 
-		ld	temp2,	keyboard_left
-		sknp 	temp2
-		ld 	temp,	lft
-		
-		ld 	temp2, 	keyboard_right
-		sknp	temp2
-		ld	temp,	rt
-		
-		;let temp+8 to check if it is a reverse to the moving direction, use 'and' to cycle it within 0-16, if it is not a reverse, make it as the new 'direction'
-		add	temp, 	8
-		ld 	temp2, 	15
-		and	temp,	temp2
-		se	temp,	dire
-		sub 	temp, 	8
-		ld	dire,	temp
+key_input:
+    ld  temp,   dire 
+    ld  temp2,  6
+    sknp  temp2
+    ld  temp, 0
+    
+    ld  temp2,  10
+    sknp  temp2
+    ld  temp, 8
 
-		ret	
+    ld  temp2,  9
+    sknp  temp2
+    ld  temp, 12
+    
+    ld  temp2,  11
+    sknp  temp2
+    ld  temp, 4
+    
+    sne  temp,   dire
+    ret
+    
+    ld  temp3,  temp
+    add temp3,   8
+    ld  temp2,  15
+    and temp3, temp2
+    sne  temp3, dire
+    ret
+    ld  dire, temp
 
-move		;let head of snake move to next position
-		sne	dire,	up
-		add	head_y,	1
+    ret 
 
-		sne	dire,	dw
-		sub	head_y,	1
-		
-		sne 	dire,	lft
-		sub	head_x,	1
-		
-		sne	dire, 	rt
-		add	head_x,	1
-		
+move:   
+    ld  temp4,  1
+    sne dire, 8
+    add head_y, 1
 
-check_sur	;check if the new position of head cause the end of game
-		sne	head_x,	#ff		;#ff is -1
-		jp	game_over		
-		sne 	head_x,	64		;the x-bound is currently set to [0,63]	(all screen)
-		jp	game_over
-		sne	head_y,	#ff
-		jp	game_over
-		sne	head_y,	32		;the y-bound is currently set to [0,31] (all screen)
-		jp	game_over
-		
-		
-		drw	head_x,	head_y,	1	;judge collision step
-		se	vf,	1		
-		ret
-		
-		se	head_x,	food_x
-		jp	game_over
-		se	head_y,	food_y
-		jp	game_over
-		
-		add	score,	1
-		ld	temp,	2
-		ld	st,	temp
-		jp	new_food
-		drw	head_x,	head_y,	1	;draw head again if it clears the food at judge collision step
-		ld	find_food,	1	;change flag of find_food to 1
-		ret
 
-new_food	;create new food
-		loop
-		rnd	food_x,	0x3F
-		rnd	food_y,	0x1F
+    sne dire, 0
+    call    judge_bd_up
+    sne dire, 0
+    sub head_y, temp4
 
-		ld	temp,	63		;check if spawned new food inside the map, respawn it if not. Note that current boundary is the whole screen [0,63], and [0,31]
-		sub	temp,	food_x
-		sne	vf,	1
-		jp	new_food
-		ld	temp,	31
-		sub	temp,	food_y
-		sne	vf,	1
-		jp	new_food
+    sne dire, 12
+    call    judge_bd_left
+    sne dire, 12
+    sub head_x, temp4
 
-		drw	food_x,	food_y,	1
-		sne 	vf,	1
-		drw	food_x,	food_y,	1
-		sne	vf,	1
-		jp	new_food
-		ret
 
-update_snake	;write new head in memory
-		add	head,	1
-		ld	I,	0xDA0
-		add	I,	head
-		ld	temp,	head_x
-		ld	[I],	v0
-		ld	I,	0xCA0
-		add	I,	head
-		ld	temp,	head_y
-		ld	[I],	v0
 
-		;erase tail
-		se	find_food,	1	;do nothing to tail if find_food flag is set 1
-		ret
-		ld	I,	0xDA0		;erase tail if find_food flag is 0
-		add	I,	tail
-		ld 	v0,	[I]
-		ld	v1,	v0
-		ld	I,	0xCA0
-		add	I,	tail
-		ld	v0,	[I]
-		drw	v1,	v0,	1
-		add	tail,	1
+    sne dire,  4
+    add head_x, 1
 
-game_over	;end game
-		ld	v0,	15
-		ld	st,	v0
-		
-		jp game_start
+    sne head_x, 47
+    jp  game_over
+    sne head_y, 32
+    jp  game_over
 
+    ret
+
+check_sur:
+    ld  I,  dot
+    drw head_x, head_y, 1
+    se  vf, 1
+    ret
+
+    se  head_x, food_x
+    jp  game_over
+    se  head_y, food_y
+    jp  game_over
+
+    ld  find_food, 1
+    ld  I,  dot
+    drw head_x, head_y, 1
+    ld  temp,   2
+    ld  st, temp
+    add score,  1
+    jp  new_food
+
+
+update_snake:
+
+    add head,   2
+    ld  I,  pos
+    add I,  head
+    ld  v0, head_x
+    ld  v1, head_y
+    ld  [I],    v1
+
+    sne find_food, 1
+    ret   
+
+    ld  I,  pos
+    add I,  tail
+    ld  v1, [I]
+    ld  I,  dot
+    drw v0, v1, 1
+    add tail,   2
+
+    ret 
+
+new_food:
+    rnd food_x, #1F
+    rnd temp,   #0F
+    add food_x, temp
+    rnd food_y, #1F
+
+
+    ld  I,  dot
+    drw food_x,food_y, 1
+    se  vf, 1
+    ret
+    drw food_x,food_y, 1
+    jp  new_food
+    ret
+
+delay:
+    ld  temp3,  64
+    ld  temp4,  5
+    sub temp4,  lvl
+    se  temp4,  0
+    call    delay_loop
+    ret
+
+delay_loop:
+    ld  temp2,  128
+    ld  dt, temp2
+    ld  temp2,  1
+    sub temp4,  temp2
+    sne temp4,  0
+    ret
+    jp  delay_loop
+
+dead_loop:
+    jp  dead_loop
+
+game_over:
+    ld  v0, 15
+    ld  st, v0
+    jp  dead_loop
+
+draw_bound:
+    ld  I,  dot
+    ld  v0, 47
+    ld  v1,0
+    call    draw_bound_loop
+    ret
+
+draw_bound_loop:
+    drw v0, v1, 1
+    add v1, 1
+    sne v1, 32
+    ret
+    jp  draw_bound_loop
+
+draw_lvl_loop:
+    add v2,1
+    sne v2, lvl
+    ret
+    ld  v3,  5
+    add I,  v3
+    jp  draw_lvl_loop
+
+judge_bd_up:
+    sne head_y,0
+    jp  game_over
+    ret
+
+judge_bd_left:
+    sne head_x,0
+    jp  game_over
+    ret  
+
+
+startsnake:
+    db  224
+
+dot:
+    db  128
+
+L:
+    db  8,8,8,8,15
+V:
+    db  17,17,17,10,4
+lvlN:
+    db  #20,#60,#20,#20,#70,#F0,#10,#F0,#80,#F0,#F0,#10,#F0,#10,#F0,#90,#90,#F0,#10,#10,#F0,#80,#F0,#10,#F0
+
+pos:
+    db  20,16,21,16,22,16
