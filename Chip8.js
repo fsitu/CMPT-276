@@ -148,9 +148,13 @@ var Processor = new function()
         {
             this.Memory[150 + i] = game_sprite[i];
         }
-        for(i = 0; i < game_sprite.length;i++)
+        for(i = 0; i < gun_sprite.length;i++)
         {
             this.Memory[270 + i] = gun_sprite[i];
+        }
+        for(i = 0; i < end_sprite.length;i++)
+        {
+            this.Memory[450 + i] = end_sprite[i];
         }
 
         this.clear_display(); // Clears the display
@@ -527,7 +531,7 @@ var Processor = new function()
                                     if (key.keyCode == key_code[i])
                                     {
                                         valid = true;
-                                        hex = key_code[i];
+                                        hex = i; //original : hex = i;
                                         console.log(keys[i] + " is pressed!")
                                         break;
                                     }
