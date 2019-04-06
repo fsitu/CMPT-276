@@ -18,11 +18,13 @@
 
         <div class="borderless" align="center">
             <h1>Chip 8 Emulator</h1>
-            <select id="GAMES">
+            <select id="GAMES" style="display: none;">
                 <option value="1P_PONG.ch8">1-P PONG</option>
                 <option value="Brick.ch8">BRICK</option>
+                <option value="Duel.ch8">Duel</option>
                 <option value="Snake.ch8">SNAKE</option>
             </select>
+            <input accept=".ch8" id="fileInput" type="file" name="CH8Input">
         </div>
 
 <div id="KEYS_DISPLAY" class="borderless" style="align-items: center; display: none;">
@@ -59,7 +61,7 @@
 </div>
 
         <div class="borderless" id="controls" align="center">
-            <button id="loadButton" type="button" onclick="load_pong()">Load and Play!</button>
+            <button id="loadButton" type="button" onclick="loadFile()">Load and Play!</button>
             <button id="testButton" type="button" onclick="load_test()">Run Auto-Test!</button>
             <button id="compileButton" type="button" onclick="compile_run()">Compile and Run</button>
             <button id="pauseButton" onclick="pauseEmulator()" type="button" hidden>Pause</button>
@@ -107,16 +109,20 @@ Sound Timer:</b></pre>
             var display = Processor.display;
             var graphics = new graphics_render(document.getElementById('my_canvas'), display_width, display_height);
 
-            function load_pong()
+            function loadFile()
             {
-                console.clear();
-                document.getElementById("KEYS_DISPLAY").style.display = "flex";
-                document.getElementById("MEMORY").style.display = "flex";
-                document.getElementById("REGISTERS").style.display = "block";
-                document.getElementById("pauseButton").hidden = false;
+                if (document.getElementById('fileInput').value != "")
+                {
+                    console.clear();
+                    document.getElementById("KEYS_DISPLAY").style.display = "flex";
+                    document.getElementById("MEMORY").style.display = "flex";
+                    document.getElementById("REGISTERS").style.display = "block";
+                    document.getElementById("pauseButton").hidden = false;
 
-                Processor.load(document.getElementById("GAMES").value);
-                Processor.main();
+                    Processor.load(document.getElementById('fileInput').files[0].name);
+                    //Processor.load(document.getElementById("GAMES").value);
+                    Processor.main();
+                }
             };
             function load_test()
             {
