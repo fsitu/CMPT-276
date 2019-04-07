@@ -123,11 +123,12 @@ var Processor = new function()
             this.Memory[i] = 0;     // Resets the memory
         }
 
+        document.onkeydown = null; // Resets any keyboard events/listeners
         this.KeyboardBuffer = [];
         this.ISpecial = 0;
 
         this.delayTimer = 0;
-        this.soundTimer = -1;
+        this.soundTimer = 0; // this.soundTimer = -1;
         this.PC = 510 // The default value so that the next PC would be 512
         this.Stack_pointer = 0;
 
