@@ -54,6 +54,11 @@ div.borderless
     padding-top: 0;
 }
 
+form
+{
+    display: inline-block;
+}
+
 input
 {
     display: block;

@@ -62,7 +62,9 @@
 
         <div class="borderless" id="controls" align="center">
             <button id="loadButton" type="button" onclick="loadFile()">Load and Play!</button>
-            <button id="testButton" type="button" onclick="load_test()">Run Auto-Test!</button>
+            <!--<button id="testButton" type="button" onclick="load_test()">Run Auto-Test!</button>-->
+            <form action="AutoTest.html" target="_blank">
+                <button id="testButton" type="submit">Run Auto-Test!</button></form>
             <button id="compileButton" type="button" onclick="compile_run()">Compile and Run</button>
             <button id="pauseButton" onclick="pauseEmulator()" type="button" hidden>Pause</button>
             <button id="fasterButton" type="button" onclick="run_faster()">Run Faster!</button>
