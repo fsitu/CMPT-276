@@ -51,7 +51,7 @@ var add_errors = function()
 }
 var display_test_result = function()
 {
-    console.log("Total Number of Opcode Tested: " + arr_opcode.length);
+    console.log("<b>Total Number of Opcodes Tested: " + arr_opcode.length + "</b>");
     for(i=0; i<arr_opcode.length; i++)
     {
         console.log(errors[i]+" errors found in opcode: "+arr_opcode[i]);
@@ -60,50 +60,84 @@ var display_test_result = function()
 }
 var main_test = function()
 {
-    //Processor.timer_cycle = setInterval(Processor.TickTimers.bind(Processor), 16.6667); // Each timer ticks every 16.6667 ms.
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     DXYN();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     sprite_loc();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     clear_display();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     //exec_subrout(); // Not implemented yet
     stack_return();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     jp_addr();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     call_addr();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     skip_inst_1();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     skip_inst_2();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     skip_inst_3();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     skip_inst_4();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     LD_1();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     ADD();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     LD_2();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     OR_1();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     AND_XY();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     XOR_XY();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     ADD_XY();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     SUB_XY();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     SHR_XY();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     SUBN();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     SHL();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     ANNN();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     BNNN();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     CXNN();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     skip_inst_5();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     skip_inst_6();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     VxtoDT();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     WaitSetVxtoKeyDown();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     SetDelayTimer_VxTODT();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     SetSoundTimer_VxTOST();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     AddVxIStore();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     StoreBCDRepVx();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     StoreV0VxtoMemory();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     ReadMemoryWriteV0Vx();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
     display_test_result();
+    console.log("------------------------------------------------------------------------------------------------------------------------");
 }
 
 var hex_convert = function(N)
 {
     return N.toString(16);
 }
-
 var ran_reg = function()
 {
     for(i=0; i<16; i++)
@@ -114,7 +148,7 @@ var ran_reg = function()
 
 var DXYN = function()
 {
-    console.log("Testing Opcode: DXYN");
+    console.log("<b>Testing Opcode: DXYN</b>");
     for(i=0; i<16; i++)
     {
         for(j=0; j<16; j++)
@@ -130,7 +164,7 @@ var DXYN = function()
 
 var sprite_loc = function()
 {
-    console.log("Testing Opcode: FX29");
+    console.log("<b>Testing Opcode: FX29</b>");
     ran_reg();
     for(i=0; i<16; i++)
     {
@@ -147,7 +181,7 @@ var sprite_loc = function()
 
 var clear_display = function()
 {
-    console.log("Testing Opcode: 00E0");
+    console.log("<b>Testing Opcode: 00E0</b>");
     Processor.execute("0x00E0");
     for(i=0; i<Processor.display.length; i++)
     {
@@ -187,12 +221,12 @@ var clear_display = function()
 }*/
 var stack_return = function()
 {
-    console.log("Testing Opcode: 00EE");
+    console.log("<b>Testing Opcode: 00EE</b>");
     Processor.execute("0x00EE");
 }
 var jp_addr = function()
 {
-    console.log("Testing Opcode: 1NNN");
+    console.log("<b>Testing Opcode: 1NNN</b>");
     for(i=0; i<16; i++)
     {
         var opcode = "0x1" + hex_convert(i) + "00";
@@ -207,7 +241,7 @@ var jp_addr = function()
 }
 var call_addr = function()
 {
-    console.log("Testing Opcode: 2NNN");
+    console.log("<b>Testing Opcode: 2NNN</b>");
     for(i=1; i<15; i++)
     {
         var prev_pc = Processor.PC
@@ -228,7 +262,7 @@ var call_addr = function()
 }
 var skip_inst_2 = function()
 {
-    console.log("Testing Opcode: 4XKK");
+    console.log("<b>Testing Opcode: 4XKK</b>");
     var k_1 = Math.floor((Math.random() * 14) + 1);
     var k_2 = Math.floor((Math.random() * 14) + 1);
     ran_reg();
@@ -258,7 +292,7 @@ var skip_inst_2 = function()
 }
 var skip_inst_3 = function()
 {
-    console.log("Testing Opcode: 5XY0");
+    console.log("<b>Testing Opcode: 5XY0</b>");
     var random_set = [];
     var random_set_2 = [];
     for(i=0; i<16; i++)
@@ -293,7 +327,7 @@ var skip_inst_3 = function()
 }
 var LD_1 = function()
 {
-    console.log("Testing Opcode: 6XKK");
+    console.log("<b>Testing Opcode: 6XKK</b>");
     ran_reg();
     for(i=0; i<16; i++)
     {
@@ -312,7 +346,7 @@ var LD_1 = function()
 }
 var ADD = function()
 {
-    console.log("Testing Opcode: 7XKK")
+    console.log("<b>Testing Opcode: 7XKK</b>")
     ran_reg();
     for(i=0; i<16; i++)
     {
@@ -345,7 +379,7 @@ var ADD = function()
 }
 var LD_2 = function()
 {
-    console.log("8XY0");
+    console.log("<b>Testing Opcode: 8XY0</b>");
     ran_reg();
     for(i=0; i<16; i++)
     {
@@ -364,7 +398,7 @@ var LD_2 = function()
 }
 var OR_1 = function()
 {
-    console.log("Testing Opcode: 8XY1");
+    console.log("<b>Testing Opcode: 8XY1</b>");
     ran_reg();
     for(i=0; i<16; i++)
     {
@@ -384,7 +418,7 @@ var OR_1 = function()
 }
 var AND_XY = function()
 {
-    console.log("Testing Opcode: 8XY2");
+    console.log("<b>Testing Opcode: 8XY2</b>");
     ran_reg();
     for(i=0; i<16; i++)
     {
@@ -405,7 +439,7 @@ var AND_XY = function()
 }
 var XOR_XY = function()
 {   
-    console.log("Testing Opcode: 8XY3");
+    console.log("<b>Testing Opcode: 8XY3</b>");
     ran_reg();
     for(i=0; i<16; i++)
     {
@@ -425,7 +459,7 @@ var XOR_XY = function()
 }
 var ADD_XY = function()
 {
-    console.log("Testing Opcode: 8XY4");
+    console.log("<b>Testing Opcode: 8XY4</b>");
     ran_reg();
     for(i=0; i<16; i++)
     {
@@ -456,7 +490,7 @@ var ADD_XY = function()
 }
 var SUB_XY = function()
 {
-    console.log("Testing Opcode: 8XY5");
+    console.log("<b>Testing Opcode: 8XY5</b>");
     ran_reg();
     for(i=0; i<16; i++)
     {
@@ -496,7 +530,7 @@ var SUB_XY = function()
 }
 var SHR_XY = function()
 {
-   console.log("Testing Opcode: 8XY6");
+   console.log("<b>Testing Opcode: 8XY6</b>");
    ran_reg();
    for(i=0; i<16; i++)
    {
@@ -537,7 +571,7 @@ var SHR_XY = function()
 }
 var SUBN = function()
 {
-    console.log("Testing Opcode: 8XY7");
+    console.log("<b>Testing Opcode: 8XY7</b>");
     ran_reg();
     for(i=0; i<16; i++)
     {
@@ -576,7 +610,7 @@ var SUBN = function()
 }
 var SHL = function()
 {
-    console.log("Testing Opcode: 8XYE");
+    console.log("<b>Testing Opcode: 8XYE</b>");
     ran_reg();
     for(i=0; i<16; i++)
     {
@@ -608,10 +642,9 @@ var SHL = function()
     }
     console.log("Test Completed");
 }
-
 var skip_inst_1 = function()
 {
-    console.log("Testing Opcode: 3XKK");
+    console.log("<b>Testing Opcode: 3XKK</b>");
     ran_reg();
     for(i=0; i<16; i++)
     {
@@ -640,10 +673,9 @@ var skip_inst_1 = function()
     console.log("Test Completed");
     
 }
-
 var skip_inst_4 = function()
 {
-    console.log("Testing Opcode: 9XY0");
+    console.log("<b>Testing Opcode: 9XY0</b>");
     ran_reg();
     for(i=0; i<16; i++)
     {
@@ -673,10 +705,9 @@ var skip_inst_4 = function()
     }
     console.log("Test Completed");
 }
-
 var ANNN = function()
 {
-    console.log("Testing Opcode: ANNN")
+    console.log("<b>Testing Opcode: ANNN</b>")
     for(i=0; i<16; i++)
     {
         var k_1 = Math.floor((Math.random() * 14) + 1);
@@ -692,10 +723,9 @@ var ANNN = function()
     }
     console.log("Test Completed");
 }
-
 var BNNN = function()
 {
-    console.log("Testing Opcode: BNNN");
+    console.log("<b>Testing Opcode: BNNN</b>");
     ran_reg();
     for(i=0; i<16; i++)
     {
@@ -712,10 +742,9 @@ var BNNN = function()
     }
     console.log("Test Completed");
 }
-
 var CXNN = function()
 {
-    console.log("Testing Opcode: CXNN");
+    console.log("<b>Testing Opcode: CXNN</b>");
     ran_reg();
     for(i=0; i<16; i++)
     {
@@ -732,22 +761,19 @@ var CXNN = function()
     }
     console.log("Test Complete");   
 }
-
 var skip_inst_5 = function()
 {
-    console.log("Testing Opcode: EX9E");
+    console.log("<b>Testing Opcode: EX9E</b>");
     // Cannot be tested automatically because it involves a keypress
 }
-
 var skip_inst_6 = function()
 {
-    console.log("Testing Opcode: EXA1");   
+    console.log("<b>Testing Opcode: EXA1</b>");   
     // Cannot be tested automatically because it involves a keypress
 }
-
 var VxtoDT = function()
 {
-    console.log("Testing Opcode: FX07");
+    console.log("<b>Testing Opcode: FX07</b>");
     ran_reg();
     for(i=0; i<16; i++)
     {
@@ -761,16 +787,14 @@ var VxtoDT = function()
     }    
     console.log("Test Completed");
 }
-
 var WaitSetVxtoKeyDown = function()
 {
-    console.log("Testing Opcode: FX0A");
+    console.log("<b>Testing Opcode: FX0A</b>");
     // Cannot be tested automatically because it involves a keypress 
 }
-
 var SetDelayTimer_VxTODT = function()
 {
-    console.log("Testing Opcode: FX15");
+    console.log("<b>Testing Opcode: FX15</b>");
     ran_reg();
     for(i=0; i<16; i++)
     {
@@ -784,10 +808,9 @@ var SetDelayTimer_VxTODT = function()
     }    
     console.log("Test Completed");
 }
-
 var SetSoundTimer_VxTOST = function()
 {
-    console.log("Testing Opcode: FX18");
+    console.log("<b>Testing Opcode: FX18</b>");
     ran_reg();
     for(i=0; i<16; i++)
     {
@@ -801,10 +824,9 @@ var SetSoundTimer_VxTOST = function()
     }    
     console.log("Test Completed");
 }
-
 var AddVxIStore = function()
 {
-    console.log("Testing Opcode: FX1E");
+    console.log("<b>Testing Opcode: FX1E</b>");
     ran_reg();
     for(i=0; i<16; i++)
     {
@@ -819,10 +841,9 @@ var AddVxIStore = function()
     }
     console.log("Test Completed");
 }
-
 var StoreBCDRepVx = function()
 {
-    console.log("Testing Opcode: FX33");
+    console.log("<b>Testing Opcode: FX33</b>");
     ran_reg();
     Processor.ISpecial = Math.floor((Math.random() * 1000) + 512);
     for(i=0; i<16; i++)
@@ -851,10 +872,9 @@ var StoreBCDRepVx = function()
     }
     console.log("Test Completed");
 }
-
 var StoreV0VxtoMemory = function()
 {
-    console.log("Testing Opcode: FX55");
+    console.log("<b>Testing Opcode: FX55</b>");
     ran_reg();
     Processor.ISpecial = Math.floor((Math.random() * 1000) + 512);
     for(i=0; i<16; i++)
@@ -878,10 +898,9 @@ var StoreV0VxtoMemory = function()
     }
     console.log("Test Completed");
 }
-
 var ReadMemoryWriteV0Vx = function()
 {
-    console.log("Testing Opcode: FX65");
+    console.log("<b>Testing Opcode: FX65</b>");
     ran_reg();
     Processor.ISpecial = Math.floor((Math.random() * 1000) + 512);
     for(i=0; i<16; i++)

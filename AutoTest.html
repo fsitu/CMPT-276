@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" type="text/css" href="Main.css">
+        <script src="auto_test.js"></script>
+        <script src="Chip8.js"></script>
+        <script src="compile.js"></script>
+        <script src="Duel_sprites.js"></script>
+        <script src="Graphics.js"></script>
+        <script src="Fontset.js"></script>
+        <script src="updateVisualizer.js"></script>
+    </head>
+    <body>
+        <div class="borderless" id="display" style="display: none" align="center">
+            <canvas id="my_canvas" width="640" height="320" ></canvas>
+        </div>
+        <p id="test_display" style="font-family: Arial, Helvetica, sans-serif"></p>
+        <script>
+            // This section of code is from https://stackoverflow.com/questions/20256760/javascript-console-log-to-html/45387558
+            (function()
+            {
+                var old = console.log;
+                var logger = document.getElementById('test_display');
+                console.log = function(message)
+                {
+                    if (typeof message == 'object')
+                        logger.innerHTML += (JSON && JSON.stringify ? JSON.stringify(message) : message) + '<br />';
+                    else
+                        logger.innerHTML += message + '<br />';
+                }
+            })();
+
+            var display_width = Processor.display_width;
+            var display_height = Processor.display_height;
+            var display = Processor.display;
+            var graphics = new graphics_render(document.getElementById('my_canvas'), display_width, display_height);
+            Processor.init();
+            main_test();
+        </script>
+    </body>
+</html>

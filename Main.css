@@ -6,14 +6,12 @@
     margin-left: 4.550em;
     margin-top: -0.70em;
 }
-
 #keyboardButtons button
 {
     border: 0.180em solid #888;
     height: 100%;
     width: 100%;
 }
-
 #keyboardButtons div
 {
     border: 0;
@@ -41,7 +39,6 @@ div
 {
     border: 0.25em solid #888;
 }
-
 div.justified
 {
     align-content: center;
@@ -49,13 +46,24 @@ div.justified
     flex-direction: column;
     justify-content: center;
 }
-
 div.borderless
 {
     border: 0;
     clear: both;
     padding: 1em;
     padding-top: 0;
+}
+
+form
+{
+    display: inline-block;
+}
+
+input
+{
+    display: block;
+    font-weight: bold;
+    text-align: center;
 }
 
 select
