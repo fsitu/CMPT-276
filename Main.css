@@ -3,17 +3,16 @@
     /*display: flex;
     flex-direction: column;
     justify-content: center;*/
-    margin-left: 4.550em;
-    margin-top: -0.70em;
-}
+    /* margin-left: 4.550em; */
+    margin-top: 1.5em;
 
+}
 #keyboardButtons button
 {
     border: 0.180em solid #888;
     height: 100%;
     width: 100%;
 }
-
 #keyboardButtons div
 {
     border: 0;
@@ -29,7 +28,7 @@
     padding-bottom: 0;
     padding-right: 0;
     padding-top: 0;
-    width: auto;
+    width: 80%;
 }
 
 button
@@ -39,9 +38,8 @@ button
 
 div
 {
-    border: 0.25em solid #888;
+    /* border: 0.25em solid #888; */
 }
-
 div.justified
 {
     align-content: center;
@@ -49,13 +47,24 @@ div.justified
     flex-direction: column;
     justify-content: center;
 }
-
 div.borderless
 {
     border: 0;
     clear: both;
     padding: 1em;
     padding-top: 0;
+}
+
+form
+{
+    display: inline-block;
+}
+
+input
+{
+    display: block;
+    font-weight: bold;
+    text-align: center;
 }
 
 select
@@ -69,8 +78,15 @@ select
 textarea
 {
     /*border: 0.5em solid #888;*/
-    display: inline-block;
+    /* display: inline-block; */
     overflow: auto;
     resize: none;
-    width: 99.50%;
+    width: 79.50%;
+}
+
+
+
+#REGISTERS p
+{
+    margin-right:20px;
 }
