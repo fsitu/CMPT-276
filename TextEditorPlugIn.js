@@ -116,4 +116,9 @@ function ModifyCode(){
         document.getElementById('key2').value = "Your Opcode:  F"+my_code[4]+"1E";
     }
 
+   /* else{
+        document.getElementById('key2').style.visibility="visible";
+        document.getElementById('key2').value = "This function is not supported.";
+    } */
+
 }
